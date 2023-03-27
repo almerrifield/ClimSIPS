@@ -15,11 +15,13 @@ import xskillscore
 
 __all__ = ["performance_order"]
 
-def performance_order(outfile,cmip,im_or_em,plotname="performance_order.png"):
+def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png"):
     if cmip not in ['CMIP5','CMIP6']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
+    if season_region not in ['JJA_CEU','DJF_NEU']:
+        raise NotImplementedError(season_region)
 
     ################################################
     fig = plt.figure(figsize=(8,4))

@@ -16,11 +16,14 @@ import xskillscore
 
 __all__ = ["independence_square"]
 
-def independence_square(outfile,cmip,im_or_em,plotname="independence_metric.png"):
+def independence_square(outfile,cmip,im_or_em,season_region,plotname="independence_metric.png"):
     if cmip not in ['CMIP5','CMIP6']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
+    if season_region not in ['JJA_CEU','DJF_NEU']:
+        raise NotImplementedError(season_region)
+    # puts models in paper index order
     if cmip == 'CMIP6':
         ind_order = [4,1,17,34,11,12,9,8,13,16,14,33,32,25,26,21,22,35,5,2,27,28,15,3,37,30,29,20,19,31,18,10,7,6]
     if cmip == 'CMIP5':

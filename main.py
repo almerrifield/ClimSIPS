@@ -19,22 +19,23 @@ def main():
     indep_path='/net/h2o/climphys/meranna/Data/predictors/independence/'
     # ensemble and representation
     cmip = 'CMIP6'
-    im_or_em = 'IM'
+    im_or_em = 'EM'
+    season_region = 'DJF_NEU'
     #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
-    dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em)
-    ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em)
-    dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em)
+    dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region)
+    ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em, season_region)
+    dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region)
 
     # save output file
     outfile = 'perf_ind_spread_metrics.nc'
     csf.make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile)
 
     # plot components
-    csp.performance_order(outfile,cmip,im_or_em,plotname="performance_order.png")
-    csp.independence_square(outfile,cmip,im_or_em,plotname="independence_metric.png")
-    csp.spread_scatter(outfile,cmip,im_or_em,plotname="spread_scatter.png")
+    csp.performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png")
+    csp.independence_square(outfile,cmip,im_or_em,season_region,plotname="independence_metric.png")
+    csp.spread_scatter(outfile,cmip,im_or_em,season_region,plotname="spread_scatter.png")
 
 
     ############# INPUTS for subselection #############
@@ -45,7 +46,7 @@ def main():
     max_workers = 1
     ###################################################
 
-    optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, m, alpha, beta, perf_cutoff, max_workers=max_workers)
+    optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, season_region, m, alpha, beta, perf_cutoff, max_workers=max_workers)
 
     csp.selection_triangle(optimal_models_csv,plotname="optimal_subsets.png")
 

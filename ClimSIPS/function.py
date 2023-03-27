@@ -20,109 +20,19 @@ import csv
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 
+from . import member_selection as csms
 
 ##################################################################
 # functions for output file creations
 ##################################################################
 
 # select default common models
-# TO DO: allow users to define common models
+# for user defined sets, see member_selection.py
 def select_default_common_models(ds,CMIP):
     if CMIP == 'CMIP6':
-        members = ['ACCESS-CM2-r1i1p1f1', 'ACCESS-CM2-r2i1p1f1', 'ACCESS-CM2-r3i1p1f1',
-               'ACCESS-ESM1-5-r10i1p1f1', 'ACCESS-ESM1-5-r1i1p1f1',
-               'ACCESS-ESM1-5-r2i1p1f1', 'ACCESS-ESM1-5-r3i1p1f1',
-               'ACCESS-ESM1-5-r4i1p1f1', 'ACCESS-ESM1-5-r5i1p1f1',
-               'ACCESS-ESM1-5-r6i1p1f1', 'ACCESS-ESM1-5-r7i1p1f1',
-               'ACCESS-ESM1-5-r8i1p1f1', 'ACCESS-ESM1-5-r9i1p1f1',
-               'AWI-CM-1-1-MR-r1i1p1f1', 'CAS-ESM2-0-r1i1p1f1', 'CAS-ESM2-0-r3i1p1f1',
-               'CESM2-WACCM-r1i1p1f1', 'CESM2-WACCM-r2i1p1f1', 'CESM2-WACCM-r3i1p1f1',
-               'CESM2-r10i1p1f1', 'CESM2-r11i1p1f1', 'CESM2-r1i1p1f1',
-               'CESM2-r2i1p1f1', 'CESM2-r4i1p1f1', 'CMCC-CM2-SR5-r1i1p1f1',
-               'CMCC-ESM2-r1i1p1f1', 'CNRM-CM6-1-HR-r1i1p1f2', 'CNRM-CM6-1-r1i1p1f2',
-               'CNRM-CM6-1-r2i1p1f2', 'CNRM-CM6-1-r3i1p1f2', 'CNRM-CM6-1-r4i1p1f2',
-               'CNRM-CM6-1-r5i1p1f2', 'CNRM-CM6-1-r6i1p1f2', 'CNRM-ESM2-1-r1i1p1f2',
-               'CNRM-ESM2-1-r2i1p1f2', 'CNRM-ESM2-1-r3i1p1f2', 'CNRM-ESM2-1-r4i1p1f2',
-               'CNRM-ESM2-1-r5i1p1f2', 'CanESM5-r10i1p1f1', 'CanESM5-r10i1p2f1',
-               'CanESM5-r11i1p1f1', 'CanESM5-r11i1p2f1', 'CanESM5-r12i1p1f1',
-               'CanESM5-r12i1p2f1', 'CanESM5-r13i1p1f1', 'CanESM5-r13i1p2f1',
-               'CanESM5-r14i1p1f1', 'CanESM5-r14i1p2f1', 'CanESM5-r15i1p1f1',
-               'CanESM5-r15i1p2f1', 'CanESM5-r16i1p1f1', 'CanESM5-r16i1p2f1',
-               'CanESM5-r17i1p1f1', 'CanESM5-r17i1p2f1', 'CanESM5-r18i1p1f1',
-               'CanESM5-r18i1p2f1', 'CanESM5-r19i1p1f1', 'CanESM5-r19i1p2f1',
-               'CanESM5-r1i1p1f1', 'CanESM5-r1i1p2f1', 'CanESM5-r20i1p1f1',
-               'CanESM5-r20i1p2f1', 'CanESM5-r21i1p1f1', 'CanESM5-r21i1p2f1',
-               'CanESM5-r22i1p1f1', 'CanESM5-r22i1p2f1', 'CanESM5-r23i1p1f1',
-               'CanESM5-r23i1p2f1', 'CanESM5-r24i1p1f1', 'CanESM5-r24i1p2f1',
-               'CanESM5-r25i1p1f1', 'CanESM5-r25i1p2f1', 'CanESM5-r2i1p1f1',
-               'CanESM5-r2i1p2f1', 'CanESM5-r3i1p1f1', 'CanESM5-r3i1p2f1',
-               'CanESM5-r4i1p1f1', 'CanESM5-r4i1p2f1', 'CanESM5-r5i1p1f1',
-               'CanESM5-r5i1p2f1', 'CanESM5-r6i1p1f1', 'CanESM5-r6i1p2f1',
-               'CanESM5-r7i1p1f1', 'CanESM5-r7i1p2f1', 'CanESM5-r8i1p1f1',
-               'CanESM5-r8i1p2f1', 'CanESM5-r9i1p1f1', 'CanESM5-r9i1p2f1',
-               'E3SM-1-1-r1i1p1f1', 'FGOALS-f3-L-r1i1p1f1', 'FGOALS-g3-r1i1p1f1',
-               'FGOALS-g3-r2i1p1f1', 'GFDL-CM4-r1i1p1f1', 'GFDL-ESM4-r1i1p1f1',
-               'GISS-E2-1-G-r1i1p3f1', 'HadGEM3-GC31-LL-r1i1p1f3',
-               'HadGEM3-GC31-LL-r2i1p1f3', 'HadGEM3-GC31-LL-r3i1p1f3',
-               'HadGEM3-GC31-LL-r4i1p1f3', 'HadGEM3-GC31-MM-r1i1p1f3',
-               'HadGEM3-GC31-MM-r2i1p1f3', 'HadGEM3-GC31-MM-r3i1p1f3',
-               'HadGEM3-GC31-MM-r4i1p1f3', 'INM-CM4-8-r1i1p1f1', 'INM-CM5-0-r1i1p1f1',
-               'IPSL-CM6A-LR-r14i1p1f1', 'IPSL-CM6A-LR-r1i1p1f1',
-               'IPSL-CM6A-LR-r2i1p1f1', 'IPSL-CM6A-LR-r3i1p1f1',
-               'IPSL-CM6A-LR-r4i1p1f1', 'IPSL-CM6A-LR-r6i1p1f1', 'KACE-1-0-G-r2i1p1f1',
-               'KACE-1-0-G-r3i1p1f1', 'KIOST-ESM-r1i1p1f1', 'MIROC-ES2L-r10i1p1f2',
-               'MIROC-ES2L-r1i1p1f2', 'MIROC-ES2L-r2i1p1f2', 'MIROC-ES2L-r3i1p1f2',
-               'MIROC-ES2L-r4i1p1f2', 'MIROC-ES2L-r5i1p1f2', 'MIROC-ES2L-r6i1p1f2',
-               'MIROC-ES2L-r7i1p1f2', 'MIROC-ES2L-r8i1p1f2', 'MIROC-ES2L-r9i1p1f2',
-               'MIROC6-r10i1p1f1', 'MIROC6-r11i1p1f1', 'MIROC6-r12i1p1f1',
-               'MIROC6-r13i1p1f1', 'MIROC6-r14i1p1f1', 'MIROC6-r15i1p1f1',
-               'MIROC6-r16i1p1f1', 'MIROC6-r17i1p1f1', 'MIROC6-r18i1p1f1',
-               'MIROC6-r19i1p1f1', 'MIROC6-r1i1p1f1', 'MIROC6-r20i1p1f1',
-               'MIROC6-r21i1p1f1', 'MIROC6-r22i1p1f1', 'MIROC6-r23i1p1f1',
-               'MIROC6-r24i1p1f1', 'MIROC6-r25i1p1f1', 'MIROC6-r26i1p1f1',
-               'MIROC6-r27i1p1f1', 'MIROC6-r28i1p1f1', 'MIROC6-r29i1p1f1',
-               'MIROC6-r2i1p1f1', 'MIROC6-r30i1p1f1', 'MIROC6-r31i1p1f1',
-               'MIROC6-r32i1p1f1', 'MIROC6-r33i1p1f1', 'MIROC6-r34i1p1f1',
-               'MIROC6-r35i1p1f1', 'MIROC6-r36i1p1f1', 'MIROC6-r37i1p1f1',
-               'MIROC6-r38i1p1f1', 'MIROC6-r39i1p1f1', 'MIROC6-r3i1p1f1',
-               'MIROC6-r40i1p1f1', 'MIROC6-r41i1p1f1', 'MIROC6-r42i1p1f1',
-               'MIROC6-r43i1p1f1', 'MIROC6-r44i1p1f1', 'MIROC6-r45i1p1f1',
-               'MIROC6-r46i1p1f1', 'MIROC6-r47i1p1f1', 'MIROC6-r48i1p1f1',
-               'MIROC6-r49i1p1f1', 'MIROC6-r4i1p1f1', 'MIROC6-r50i1p1f1',
-               'MIROC6-r5i1p1f1', 'MIROC6-r6i1p1f1', 'MIROC6-r7i1p1f1',
-               'MIROC6-r8i1p1f1', 'MIROC6-r9i1p1f1', 'MPI-ESM1-2-HR-r1i1p1f1',
-               'MPI-ESM1-2-HR-r2i1p1f1', 'MPI-ESM1-2-LR-r10i1p1f1',
-               'MPI-ESM1-2-LR-r1i1p1f1', 'MPI-ESM1-2-LR-r2i1p1f1',
-               'MPI-ESM1-2-LR-r3i1p1f1', 'MPI-ESM1-2-LR-r4i1p1f1',
-               'MPI-ESM1-2-LR-r5i1p1f1', 'MPI-ESM1-2-LR-r6i1p1f1',
-               'MPI-ESM1-2-LR-r7i1p1f1', 'MPI-ESM1-2-LR-r8i1p1f1',
-               'MPI-ESM1-2-LR-r9i1p1f1', 'MRI-ESM2-0-r1i1p1f1', 'MRI-ESM2-0-r1i2p1f1',
-               'NESM3-r1i1p1f1', 'NESM3-r2i1p1f1', 'NorESM2-MM-r1i1p1f1',
-               'TaiESM1-r1i1p1f1', 'UKESM1-0-LL-r1i1p1f2', 'UKESM1-0-LL-r2i1p1f2',
-               'UKESM1-0-LL-r3i1p1f2', 'UKESM1-0-LL-r4i1p1f2', 'UKESM1-0-LL-r8i1p1f2']
+        members = csms.CMIP6_common_members
     if CMIP == 'CMIP5':
-        members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'CCSM4-r1i1p1', 'CCSM4-r2i1p1',
-                   'CCSM4-r3i1p1', 'CCSM4-r4i1p1', 'CCSM4-r5i1p1', 'CCSM4-r6i1p1',
-                   'CESM1-CAM5-r1i1p1', 'CESM1-CAM5-r2i1p1', 'CESM1-CAM5-r3i1p1',
-                   'CNRM-CM5-r10i1p1', 'CNRM-CM5-r1i1p1', 'CNRM-CM5-r2i1p1',
-                   'CNRM-CM5-r4i1p1', 'CNRM-CM5-r6i1p1', 'CSIRO-Mk3-6-0-r10i1p1',
-                   'CSIRO-Mk3-6-0-r1i1p1', 'CSIRO-Mk3-6-0-r2i1p1', 'CSIRO-Mk3-6-0-r3i1p1',
-                   'CSIRO-Mk3-6-0-r4i1p1', 'CSIRO-Mk3-6-0-r5i1p1', 'CSIRO-Mk3-6-0-r6i1p1',
-                   'CSIRO-Mk3-6-0-r7i1p1', 'CSIRO-Mk3-6-0-r8i1p1', 'CSIRO-Mk3-6-0-r9i1p1',
-                   'CanESM2-r1i1p1', 'CanESM2-r2i1p1', 'CanESM2-r3i1p1', 'CanESM2-r4i1p1',
-                   'CanESM2-r5i1p1', 'GFDL-CM3-r1i1p1', 'GFDL-ESM2G-r1i1p1',
-                   'GFDL-ESM2M-r1i1p1', 'GISS-E2-H-r1i1p1', 'GISS-E2-H-r1i1p2',
-                   'GISS-E2-H-r1i1p3', 'GISS-E2-H-r2i1p1', 'GISS-E2-H-r2i1p3',
-                   'GISS-E2-R-r1i1p1', 'GISS-E2-R-r1i1p2', 'GISS-E2-R-r1i1p3',
-                   'GISS-E2-R-r2i1p1', 'GISS-E2-R-r2i1p3', 'HadGEM2-ES-r1i1p1',
-                   'HadGEM2-ES-r2i1p1', 'HadGEM2-ES-r3i1p1', 'HadGEM2-ES-r4i1p1',
-                   'IPSL-CM5A-LR-r1i1p1', 'IPSL-CM5A-LR-r2i1p1', 'IPSL-CM5A-LR-r3i1p1',
-                   'IPSL-CM5A-LR-r4i1p1', 'IPSL-CM5A-MR-r1i1p1', 'IPSL-CM5B-LR-r1i1p1',
-                   'MIROC-ESM-r1i1p1', 'MIROC5-r1i1p1', 'MIROC5-r2i1p1', 'MIROC5-r3i1p1',
-                   'MPI-ESM-LR-r1i1p1', 'MPI-ESM-LR-r2i1p1', 'MPI-ESM-LR-r3i1p1',
-                   'MPI-ESM-MR-r1i1p1', 'MRI-CGCM3-r1i1p1', 'NorESM1-M-r1i1p1',
-                   'NorESM1-ME-r1i1p1', 'bcc-csm1-1-m-r1i1p1', 'bcc-csm1-1-r1i1p1',
-                   'inmcm4-r1i1p1']
+        members = csms.CMIP5_common_members
     return ds.sel(member=members)
 
 # load performance predictors
@@ -166,7 +76,7 @@ def performance_metric(*ds_list):
 # choose ensemble mean or individual member
 # TO DO: generalize ensemble mean for any base select
 # TO DO: provide way to select the spread-i-est members, generalize
-def ensemble_mean_or_individual_member(ds,choice,CMIP,key=None):
+def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
     if key:
         dss = ds[key]
     else:
@@ -325,29 +235,14 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,key=None):
         return ds_all
 # CMIP6 by spread
     if choice == 'IM' and CMIP == 'CMIP6':
-        spread_members = ['ACCESS-CM2-r2i1p1f1','ACCESS-ESM1-5-r1i1p1f1',
-               'AWI-CM-1-1-MR-r1i1p1f1', 'CAS-ESM2-0-r1i1p1f1',
-               'CESM2-WACCM-r2i1p1f1','CESM2-r11i1p1f1','CMCC-CM2-SR5-r1i1p1f1',
-               'CMCC-ESM2-r1i1p1f1', 'CNRM-CM6-1-HR-r1i1p1f2','CNRM-CM6-1-r4i1p1f2','CNRM-ESM2-1-r2i1p1f2',
-               'CanESM5-r16i1p1f1','E3SM-1-1-r1i1p1f1', 'FGOALS-f3-L-r1i1p1f1', 'FGOALS-g3-r2i1p1f1',
-               'GFDL-CM4-r1i1p1f1', 'GFDL-ESM4-r1i1p1f1','GISS-E2-1-G-r1i1p3f1',
-               'HadGEM3-GC31-LL-r3i1p1f3','HadGEM3-GC31-MM-r1i1p1f3', 'INM-CM4-8-r1i1p1f1', 'INM-CM5-0-r1i1p1f1',
-               'IPSL-CM6A-LR-r6i1p1f1','KACE-1-0-G-r3i1p1f1','KIOST-ESM-r1i1p1f1','MIROC-ES2L-r1i1p1f2','MIROC6-r15i1p1f1',
-               'MPI-ESM1-2-HR-r1i1p1f1','MPI-ESM1-2-LR-r10i1p1f1','MRI-ESM2-0-r1i1p1f1','NESM3-r1i1p1f1',
-               'NorESM2-MM-r1i1p1f1','TaiESM1-r1i1p1f1','UKESM1-0-LL-r1i1p1f2']
-        return dss.sel(member=spread_members)
+        mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region)
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
 # CMIP5 by spread
     if choice == 'IM' and CMIP == 'CMIP5':
-        spread_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'CCSM4-r6i1p1',
-               'CESM1-CAM5-r1i1p1','CNRM-CM5-r2i1p1', 'CSIRO-Mk3-6-0-r10i1p1',
-               'CanESM2-r5i1p1', 'GFDL-CM3-r1i1p1', 'GFDL-ESM2G-r1i1p1',
-               'GFDL-ESM2M-r1i1p1', 'GISS-E2-H-r1i1p3','GISS-E2-R-r1i1p3','HadGEM2-ES-r4i1p1',
-               'IPSL-CM5A-LR-r1i1p1','IPSL-CM5A-MR-r1i1p1', 'IPSL-CM5B-LR-r1i1p1',
-               'MIROC-ESM-r1i1p1', 'MIROC5-r3i1p1','MPI-ESM-LR-r2i1p1',
-               'MPI-ESM-MR-r1i1p1', 'MRI-CGCM3-r1i1p1', 'NorESM1-M-r1i1p1',
-               'NorESM1-ME-r1i1p1', 'bcc-csm1-1-m-r1i1p1', 'bcc-csm1-1-r1i1p1',
-               'inmcm4-r1i1p1']
-        return dss.sel(member=spread_members)
+        mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region)
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
 
 # normalize for spread
 def normalize_spread_component(ds):
@@ -393,8 +288,8 @@ def normalize_independence_matrix(ds):
 ##################################################################
 
 # create csv with minimizing value and subset listed for each alpha-beta combo (one core)
-def multi_run(m, cmip, im_or_em, alpha_steps, beta_steps, perf_cutoff,data):
-    filename=Path(cmip+'_'+im_or_em+'_JJA_CEU_'+'alpha-beta-scan.csv')
+def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data):
+    filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+'alpha-beta-scan.csv')
     if filename.exists():
         raise RuntimeError('file exists!')
     with open(filename, 'w', newline='') as f:
@@ -499,10 +394,10 @@ def get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=Tr
     return min_val, min_members
 
 # creates csv in parallel (when multiple cores are available)
-def multi_parallel_run(m, cmip, im_or_em, alpha_steps, beta_steps, perf_cutoff, data, max_workers):
-    single_run_subdir = cmip+'_JJA_CEU_'+im_or_em
+def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, max_workers):
+    single_run_subdir = cmip+'_'+season_region+'_'+im_or_em
     print(f'running with {max_workers} workers.')
-    filename=Path(cmip+'_'+im_or_em+'_JJA_CEU_'+'alpha-beta-scan.csv')
+    filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+'alpha-beta-scan.csv')
     if filename.exists():
         raise RuntimeError('file exists!')
 
@@ -550,12 +445,12 @@ def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=Fal
         writer = csv.writer(f)
         writer.writerow([alpha,beta,min_val]+min_member)
 
-
 # ################################
 # Make output files
 # ################################
 
 def make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile='perf_ind_spread_metrics.nc'):
+    print('Models Used: ',dsWi.member.data)
     dsWi = dsWi.to_dataset(name='delta_i')
     dsWi['delta_q'] = dsDeltaQ
     dsWi['change'] = ds_spread_metric
@@ -563,9 +458,9 @@ def make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile='perf_ind_sp
     dsWi['pr_change'] = targets[1]
     dsWi.to_netcdf(outfile)
 
-def select_models(outfile, cmip, im_or_em, m, alpha_steps, beta_steps, perf_cutoff,max_workers=1):
+def select_models(outfile, cmip, im_or_em, season_region, m, alpha_steps, beta_steps, perf_cutoff,max_workers=1):
     data = xr.open_dataset(outfile,use_cftime = True)
     if max_workers==1:
-        return multi_run(m, cmip, im_or_em, alpha_steps, beta_steps, perf_cutoff,data)
+        return multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data)
     else:
-        return multi_parallel_run(m, cmip, im_or_em, alpha_steps, beta_steps, perf_cutoff,data,max_workers)
+        return multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,max_workers)

@@ -82,7 +82,7 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
     else:
         dss = ds
     ## CMIP6 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP6':
+    if choice == 'EM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU']:
         hadgemmm = dss.sel(member = ['HadGEM3-GC31-MM-r1i1p1f3',
         'HadGEM3-GC31-MM-r2i1p1f3', 'HadGEM3-GC31-MM-r3i1p1f3',
         'HadGEM3-GC31-MM-r4i1p1f3']).mean('member')
@@ -192,7 +192,7 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         dss.sel(member='NorESM2-MM-r1i1p1f1'),dss.sel(member='TaiESM1-r1i1p1f1'),uk],dim='member')
         return ds_all
 # CMIP5 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP5':
+    if choice == 'EM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU']:
         cesm1 = dss.sel(member=['CESM1-CAM5-r1i1p1', 'CESM1-CAM5-r2i1p1', 'CESM1-CAM5-r3i1p1']).mean('member')
         cesm1['member'] = 'CESM1-CAM5-r0i0p0'
         miroc5 = dss.sel(member=['MIROC5-r1i1p1', 'MIROC5-r2i1p1', 'MIROC5-r3i1p1']).mean('member')
@@ -234,13 +234,23 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         dss.sel(member='bcc-csm1-1-r1i1p1'),dss.sel(member='inmcm4-r1i1p1')],dim='member')
         return ds_all
 # CMIP6 by spread
-    if choice == 'IM' and CMIP == 'CMIP6':
+    if choice == 'IM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
         mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
 # CMIP5 by spread
-    if choice == 'IM' and CMIP == 'CMIP5':
+    if choice == 'IM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
         mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region)
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
+# CMIP6 RCM by spread
+    if choice == 'IM' and CMIP == 'CMIP6' and season_region == 'CH202x_CEU':
+        mem_out = csms.CMIP6_RCM_common_members
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
+# CMIP5 by spread
+    if choice == 'IM' and CMIP == 'CMIP5' and season_region == 'CH202x_CEU':
+        mem_out = csms.CMIP5_RCM_common_members
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
 
@@ -288,8 +298,11 @@ def normalize_independence_matrix(ds):
 ##################################################################
 
 # create csv with minimizing value and subset listed for each alpha-beta combo (one core)
-def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data):
-    filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+'alpha-beta-scan.csv')
+def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,min2=False):
+    min2_text=""
+    if min2:
+        min2_text='min2_'
+    filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+min2_text+'alpha-beta-scan.csv')
     if filename.exists():
         raise RuntimeError('file exists!')
     with open(filename, 'w', newline='') as f:
@@ -301,19 +314,19 @@ def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cu
                 beta = beta_idx/beta_steps
                 if alpha + beta > 1:
                     continue
-                min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True)
+                min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True,min2=min2)
                 print(alpha, beta, min_val, min_member)
                 writer.writerow([alpha,beta,min_val]+min_member)
     return filename
 # finds minimizing subset
-def single_run(m, alpha, beta, perf_cutoff, data, silent=False):
+def single_run(m, alpha, beta, perf_cutoff, data, silent=False,min2=False):
     n = len(data.delta_q)
     perf = xr.DataArray(data.delta_q.data, dims=['member'], coords=dict(member=data.delta_q.coords['member']))
     change_data = data.change.data
     dist_data = data.delta_i.data
     change = xr.DataArray(change_data, dims=['member','member_model'], coords=dict(member=data.change.coords['member'],member_model=data.change.coords['member_model']))
     dist = xr.DataArray(dist_data, dims=['member','member_model'], coords=dict(member=data.delta_i.coords['member'],member_model=data.delta_i.coords['member_model']))
-    min_val, min_members = get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=silent)
+    min_val, min_members = get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=silent,min2=min2)
     return min_val, min_members
 
 # normalizing metrics so they contribute equally to the cost function
@@ -349,7 +362,7 @@ def norm_matrices(perf, dist, change, perf_cutoff):
     return norm_perf, norm_dist, norm_change
 
 # check all combinations to determine the cost-function-minimizing subset
-def get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=True):
+def get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=True, min2=False):
     members = list(perf.where(perf<perf_cutoff, drop=True).member.data)
     n = len(members)
     if not silent:
@@ -363,6 +376,8 @@ def get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=Tr
 
     # now we check for all combinations (n choose m) many
     min_val, min_combo = np.inf, []
+    if min2:
+        min2_val, min2_combo = np.inf, []
 
     total_combinations = int(math.factorial(n) / math.factorial(m) / math.factorial(n-m))
     start_time = time.time()
@@ -370,34 +385,49 @@ def get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=Tr
     for i, combo in enumerate(itertools.combinations(range(len(members)), m)):
         cost = cost_function(list(combo))
         if cost < min_val:
+            if min2:
+                min2_val = min_val
+                min2_combo = min_combo
             min_combo = combo
             min_val = cost.data
-            min_members = [members[i] for i in min_combo]
+        elif min2 and cost < min2_val:
+            min2_combo = combo
+            min2_val = cost.data
 
-    # this part displays progress, requires silent = False
+        minX_val = min_val
+        minX_combo = min_combo
+        if min2:
+            minX_val = min2_val
+            minX_combo = min2_combo
+        minX_members = [members[i] for i in minX_combo]
+
+        # this part displays progress, requires silent = False
         if not silent and i & 0b1111111111111 == 0:
             if i == 0:
                 continue
             percent = i / total_combinations
             eta = (1-percent) * (time.time() - start_time) / percent
-            print(f"{100*percent:>4.1f}% / eta in {eta/60:.1f} min / best score {min_val:.3f}")
-            print(f"{', '.join(min_members)}")
+            print(f"{100*percent:>4.1f}% / eta in {eta/60:.1f} min / best score {minX_val:.3f}")
+            print(f"{', '.join(minX_members )}")
 
     if not silent:
         print(f"all {total_combinations} combinations tested, which took {(time.time() - start_time)/60:.1f} min")
-        print(f"min val (alpha={alpha}): {min_val}")
+        print(f"min val (alpha={alpha}): {minX_val}")
         print(f"min members:")
-        for index, member in zip(min_combo, min_members):
-            distances = [f"{dist[index, i].data:>6.2f}" for i in min_combo]
-            spreads = [f"{change[index, i].data:>6.2f}" for i in min_combo]
+        for index, member in zip(minX_combo, minX_members):
+            distances = [f"{dist[index, i].data:>6.2f}" for i in minX_combo]
+            spreads = [f"{change[index, i].data:>6.2f}" for i in minX_combo]
             print(f" * {member:>24}   perf: {perf[index].data:>6.2f} dist: {' '.join(distances)} spread: {' '.join(spreads)}") # avr_dist: {avr_dist[index].data:>6.2f}
-    return min_val, min_members
+    return minX_val, minX_members
 
 # creates csv in parallel (when multiple cores are available)
-def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, max_workers):
+def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, max_workers, min2=False):
     single_run_subdir = cmip+'_'+season_region+'_'+im_or_em
     print(f'running with {max_workers} workers.')
-    filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+'alpha-beta-scan.csv')
+    min2_text=""
+    if min2:
+        min2_text='min2_'
+    filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+min2_text+'alpha-beta-scan.csv')
     if filename.exists():
         raise RuntimeError('file exists!')
 
@@ -414,7 +444,7 @@ def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps
                 single_run_file.parent.mkdir(parents=True, exist_ok=True)
                 if single_run_file.exists():
                     continue
-                future = pool.submit(single_run_with_save, single_run_file, m, alpha, beta, perf_cutoff, data, silent=True)
+                future = pool.submit(single_run_with_save, single_run_file, m, alpha, beta, perf_cutoff, data, silent=True,min2=min2)
                 futures.append(future)
                 print(f'submitted {alpha_idx}/{beta_idx}')
 
@@ -439,8 +469,8 @@ def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps
     return filename
 
 # saves as an intermidiate step when running in parallel
-def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=False):
-    min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True)
+def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=False,min2=False):
+    min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True,min2=min2)
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([alpha,beta,min_val]+min_member)
@@ -458,9 +488,9 @@ def make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile='perf_ind_sp
     dsWi['pr_change'] = targets[1]
     dsWi.to_netcdf(outfile)
 
-def select_models(outfile, cmip, im_or_em, season_region, m, alpha_steps, beta_steps, perf_cutoff,max_workers=1):
+def select_models(outfile, cmip, im_or_em, season_region, m, alpha_steps, beta_steps, perf_cutoff,max_workers=1,min2=False):
     data = xr.open_dataset(outfile,use_cftime = True)
     if max_workers==1:
-        return multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data)
+        return multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,min2=min2)
     else:
-        return multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,max_workers)
+        return multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,max_workers,min2=min2)

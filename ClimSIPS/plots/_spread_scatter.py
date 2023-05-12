@@ -23,7 +23,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU']:
         raise NotImplementedError(season_region)
 
     # ################################################
@@ -37,10 +37,12 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         'ACCESS-CM2-r2i1p1f1': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP6 IM
         'ACCESS-ESM1-5-r1i1p1f1': dict(c='tab:red',s=30,marker='+',alpha=1),
         'ACCESS-ESM1-5-r5i1p1f1': dict(c='tab:red',s=30,marker='+',alpha=1), # DJF case
+        'ACCESS-ESM1-5-r4i1p1f1': dict(c='tab:red',s=30,marker='+',alpha=1), # DJF CEU case
         'AWI-CM-1-1-MR-r1i1p1f1': dict(c='tab:orange',s=20,marker='x',alpha=1),
         'CAS-ESM2-0-r1i1p1f1': dict(c='tab:cyan',s=20,marker='x',alpha=1),
         'CAS-ESM2-0-r3i1p1f1': dict(c='tab:cyan',s=20,marker='x',alpha=1), # DJF case
         'CESM2-WACCM-r2i1p1f1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1),
+        'CESM2-WACCM-r3i1p1f1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1), # DJF CEU case
         'CESM2-r11i1p1f1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1),
         'CESM2-r2i1p1f1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1), # DJF case
         'CMCC-CM2-SR5-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='^',alpha=1),
@@ -52,6 +54,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         'CNRM-ESM2-1-r3i1p1f2': dict(c='cornflowerblue',s=20,marker='^',alpha=1), # DJF case
         'CanESM5-r16i1p1f1': dict(c='dodgerblue',s=20,marker='x',alpha=1),
         'CanESM5-r14i1p2f1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # DJF case
+        'CanESM5-r1i1p2f1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # DJF CEU case
         'E3SM-1-1-r1i1p1f1': dict(c='k',s=20,marker='x',alpha=1),
         'FGOALS-f3-L-r1i1p1f1': dict(c='maroon',s=20,marker='x',alpha=1),
         'FGOALS-g3-r2i1p1f1': dict(c='maroon',s=20,marker='o',alpha=1),
@@ -65,22 +68,27 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         'INM-CM5-0-r1i1p1f1': dict(c='mediumseagreen',s=20,marker='o',alpha=1),
         'IPSL-CM6A-LR-r6i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1),
         'IPSL-CM6A-LR-r2i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1), # DJF case
+        'IPSL-CM6A-LR-r4i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1), # DJF CEU case
         'KACE-1-0-G-r3i1p1f1': dict(c='tab:red',s=30,marker='*',alpha=1),
         'KIOST-ESM-r1i1p1f1': dict(c='darkslateblue',s=20,marker='x',alpha=1),
         'MIROC-ES2L-r1i1p1f2': dict(c='lightsalmon',s=20,marker='x',alpha=1),
         'MIROC-ES2L-r9i1p1f2': dict(c='lightsalmon',s=20,marker='x',alpha=1), # DJF case
+        'MIROC-ES2L-r2i1p1f2': dict(c='lightsalmon',s=20,marker='x',alpha=1), # DJF CEU case
         'MIROC6-r15i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1),
         'MIROC6-r12i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1), # DJF case
+        'MIROC6-r50i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1), # DJF CEU case
         'MPI-ESM1-2-HR-r1i1p1f1': dict(c='tab:orange',s=20,marker='o',alpha=1),
         'MPI-ESM1-2-HR-r2i1p1f1': dict(c='tab:orange',s=20,marker='o',alpha=1), # DJF case
         'MPI-ESM1-2-LR-r10i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1),
         'MPI-ESM1-2-LR-r4i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1), # DJF case
+        'MPI-ESM1-2-LR-r9i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1), # DJF CEU case
         'MRI-ESM2-0-r1i1p1f1': dict(c='palevioletred',s=20,marker='x',alpha=1),
         'NESM3-r1i1p1f1': dict(c='tab:orange',s=30,marker='*',alpha=1),
         'NorESM2-MM-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='d',alpha=1),
         'TaiESM1-r1i1p1f1': dict(c='darkgoldenrod',s=30,marker='+',alpha=1),
         'UKESM1-0-LL-r1i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # end CMIP6 IM
         'UKESM1-0-LL-r2i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # DJF case
+        'UKESM1-0-LL-r3i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # DJF CEU case
         'ACCESS-CM2-r0i0p0f0': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP6 EM
         'ACCESS-ESM1-5-r0i0p0f0': dict(c='tab:red',s=30,marker='+',alpha=1),
         'AWI-CM-1-1-MR-r1i1p1f1': dict(c='tab:orange',s=20,marker='x',alpha=1),
@@ -216,11 +224,15 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         plt.xlim([0.5,6])
     if season_region == 'DJF_NEU':
         plt.xlim([0.5,8])
+    if season_region == 'DJF_CEU':
+        plt.xlim([0.5,6])
     plt.ylabel('Target PR Change (mm/day)')
     if season_region == 'JJA_CEU':
         plt.ylim([-0.7,0.5])
     if season_region == 'DJF_NEU':
         plt.ylim([-0.3,0.8])
+    if season_region == 'DJF_CEU':
+        plt.ylim([-0.3, 0.8])
     plt.title('SAT-PR Change',fontsize=12,fontweight='bold',loc='left')
     plt.legend(loc='center left', bbox_to_anchor=(1.01, 0.5),fontsize=8)
     plt.savefig(plotname,bbox_inches='tight',dpi=300)

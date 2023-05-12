@@ -20,7 +20,7 @@ def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU']:
         raise NotImplementedError(season_region)
 
     ################################################

@@ -18,6 +18,7 @@ def pre_process_perf_load_delta(path, cmip, season_region):
         raise NotImplementedError(cmip)
 
     # CMIP5 and CMIP6 predictors
+    ## CMIP5 JJA CEU
     if cmip == 'CMIP5' and season_region == 'JJA_CEU':
         SST_fn = 'tos_mon_CMIP5_rcp85_g025_NAWH_ann_1995-2014_mean.nc'
         SW_ann_fn = 'swcre_mon_CMIP5_rcp85_g025_SHML_ann_2001-2018_mean.nc'
@@ -59,6 +60,7 @@ def pre_process_perf_load_delta(path, cmip, season_region):
 
         return [dsSST_ann_base_delta, dsSW_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsSW_jja_base_delta, dsPr_jja_base_delta]
 
+    ## CMIP5 DJF NEU
     if cmip == 'CMIP5' and season_region == 'DJF_NEU':
         SST_fn = 'tos_mon_CMIP5_rcp85_g025_NAWH_ann_1995-2014_mean.nc'
         SW_ann_fn = 'swcre_mon_CMIP5_rcp85_g025_SHML_ann_2001-2018_mean.nc'
@@ -100,6 +102,91 @@ def pre_process_perf_load_delta(path, cmip, season_region):
 
         return [dsSST_ann_base_delta, dsSW_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
 
+    ## CMIP5 DJF CEU
+    if cmip == 'CMIP5' and season_region == 'DJF_CEU':
+        SST_fn = 'tos_mon_CMIP5_rcp85_g025_NAWH_ann_1995-2014_mean.nc'
+        SW_ann_fn = 'swcre_mon_CMIP5_rcp85_g025_SHML_ann_2001-2018_mean.nc'
+        T_base_fn = 'tas_mon_CMIP5_rcp85_g025_EUR_ann_1995-2014_mean.nc'
+        T_his_fn = 'tas_mon_CMIP5_hist_g025_EUR_ann_1950-1969_mean.nc'
+        SLP_djf_fn = 'psl_mon_CMIP5_rcp85_g025_NATL_djf_1950-2014_mean.nc'
+        Pr_fn = 'pr_mon_CMIP5_rcp85_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        # load, filter for common models
+        dsSST_ann_base = csf.load_models(path,SST_fn,cmip,default_models=True)
+        dsSW_ann_base = csf.load_models(path,SW_ann_fn,cmip,default_models=True)
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_his = csf.load_models(path,T_his_fn,cmip,default_models=True)
+        dsSLP_djf_base = csf.load_models(path,SLP_djf_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        SSTobs_fn = 'tos_mon_OBS_g025_NAWH_ann_1995-2014_mean.nc'
+        SWobs_ann_fn = 'swcre_mon_OBS_g025_SHML_ann_2001-2018_mean.nc'
+        Tobs_base_fn = 'tas_mon_OBS_g025_EUR_ann_1995-2014_mean.nc'
+        Tobs_his_fn = 'tas_mon_OBS_g025_EUR_ann_1950-1969_mean.nc'
+        SLPobs_djf_fn = 'psl_mon_OBS_g025_NATL_djf_1950-2014_mean.nc'
+        Probs_fn = 'pr_mon_OBS_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        dsSSTobs_ann_base = csf.load_observations(path,SSTobs_fn)
+        dsSWobs_ann_base = csf.load_observations(path,SWobs_ann_fn)
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_his = csf.load_observations(path,Tobs_his_fn)
+        dsSLPobs_djf_base = csf.load_observations(path,SLPobs_djf_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsSST_ann_base_delta = csf.compute_predictor_deltas(dsSST_ann_base,dsSSTobs_ann_base,'tos')
+        dsSW_ann_base_delta = csf.compute_predictor_deltas(dsSW_ann_base,dsSWobs_ann_base,'swcre')
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_his_delta = csf.compute_predictor_deltas(dsT_ann_his,dsTobs_ann_his,'tas')
+        dsSLP_djf_base_delta = csf.compute_predictor_deltas(dsSLP_djf_base,dsSLPobs_djf_base,'psl')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsSST_ann_base_delta, dsSW_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
+
+    ## CMIP5 CH202x Case
+    if cmip == 'CMIP5' and season_region == 'CH202x_CEU':
+        SST_fn = 'tos_mon_CMIP5_rcp85_g025_NAWH_ann_1995-2014_mean.nc'
+        T_base_fn = 'tas_mon_CMIP5_rcp85_g025_EUR_ann_1995-2014_mean.nc'
+        T_his_fn = 'tas_mon_CMIP5_hist_g025_EUR_ann_1950-1969_mean.nc'
+        Pr_fn = 'pr_mon_CMIP5_rcp85_g025_EOBS-CEU_jja_1995-2014_mean.nc'
+        SLP_djf_fn = 'psl_mon_CMIP5_rcp85_g025_NATL_djf_1950-2014_mean.nc'
+        Pr_djf_fn = 'pr_mon_CMIP5_rcp85_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        # load, filter for common models
+        dsSST_ann_base = csf.load_models(path,SST_fn,cmip,default_models=True)
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_his = csf.load_models(path,T_his_fn,cmip,default_models=True)
+        dsPr_jja_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+        dsSLP_djf_base = csf.load_models(path,SLP_djf_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_djf_fn,cmip,default_models=True)
+
+        # load observations
+        SSTobs_fn = 'tos_mon_OBS_g025_NAWH_ann_1995-2014_mean.nc'
+        Tobs_base_fn = 'tas_mon_OBS_g025_EUR_ann_1995-2014_mean.nc'
+        Tobs_his_fn = 'tas_mon_OBS_g025_EUR_ann_1950-1969_mean.nc'
+        Probs_fn = 'pr_mon_OBS_g025_EOBS-CEU_jja_1995-2014_mean.nc'
+        SLPobs_djf_fn = 'psl_mon_OBS_g025_NATL_djf_1950-2014_mean.nc'
+        Probs_djf_fn = 'pr_mon_OBS_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        dsSSTobs_ann_base = csf.load_observations(path,SSTobs_fn)
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_his = csf.load_observations(path,Tobs_his_fn)
+        dsProbs_jja_base = csf.load_observations(path,Probs_fn)
+        dsSLPobs_djf_base = csf.load_observations(path,SLPobs_djf_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_djf_fn)
+
+        # compute predictor-obs RMSEs
+        dsSST_ann_base_delta = csf.compute_predictor_deltas(dsSST_ann_base,dsSSTobs_ann_base,'tos')
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_his_delta = csf.compute_predictor_deltas(dsT_ann_his,dsTobs_ann_his,'tas')
+        dsPr_jja_base_delta = csf.compute_predictor_deltas(dsPr_jja_base,dsProbs_jja_base,'pr')
+        dsSLP_djf_base_delta = csf.compute_predictor_deltas(dsSLP_djf_base,dsSLPobs_djf_base,'psl')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsSST_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsPr_jja_base_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
+
+    ## CMIP6 JJA CEU
     if cmip == 'CMIP6' and season_region == 'JJA_CEU':
         SST_fn = 'tos_mon_CMIP6_hist_g025_NAWH_ann_1995-2014_mean.nc'
         SW_ann_fn = 'swcre_mon_CMIP6_SSP585_g025_SHML_ann_2001-2018_mean.nc'
@@ -141,7 +228,7 @@ def pre_process_perf_load_delta(path, cmip, season_region):
 
         return [dsSST_ann_base_delta, dsSW_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsSW_jja_base_delta, dsPr_jja_base_delta]
 
-
+    ## CMIP6 DJF NEU
     if cmip == 'CMIP6' and season_region == 'DJF_NEU':
         SST_fn = 'tos_mon_CMIP6_hist_g025_NAWH_ann_1995-2014_mean.nc'
         SW_ann_fn = 'swcre_mon_CMIP6_SSP585_g025_SHML_ann_2001-2018_mean.nc'
@@ -182,6 +269,91 @@ def pre_process_perf_load_delta(path, cmip, season_region):
         dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
 
         return [dsSST_ann_base_delta, dsSW_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
+
+    ## CMIP6 DJF CEU
+    if cmip == 'CMIP6' and season_region == 'DJF_CEU':
+        SST_fn = 'tos_mon_CMIP6_hist_g025_NAWH_ann_1995-2014_mean.nc'
+        SW_ann_fn = 'swcre_mon_CMIP6_SSP585_g025_SHML_ann_2001-2018_mean.nc'
+        T_base_fn = 'tas_mon_CMIP6_hist_g025_EUR_ann_1995-2014_mean.nc'
+        T_his_fn = 'tas_mon_CMIP6_hist_g025_EUR_ann_1950-1969_mean.nc'
+        SLP_djf_fn = 'psl_mon_CMIP6_hist_g025_NATL_djf_1950-2014_mean.nc'
+        Pr_fn = 'pr_mon_CMIP6_hist_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        # load, filter for common models
+        dsSST_ann_base = csf.load_models(path,SST_fn,cmip,default_models=True)
+        dsSW_ann_base = csf.load_models(path,SW_ann_fn,cmip,default_models=True)
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_his = csf.load_models(path,T_his_fn,cmip,default_models=True)
+        dsSLP_djf_base = csf.load_models(path,SLP_djf_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        SSTobs_fn = 'tos_mon_OBS_g025_NAWH_ann_1995-2014_mean.nc'
+        SWobs_ann_fn = 'swcre_mon_OBS_g025_SHML_ann_2001-2018_mean.nc'
+        Tobs_base_fn = 'tas_mon_OBS_g025_EUR_ann_1995-2014_mean.nc'
+        Tobs_his_fn = 'tas_mon_OBS_g025_EUR_ann_1950-1969_mean.nc'
+        SLPobs_djf_fn = 'psl_mon_OBS_g025_NATL_djf_1950-2014_mean.nc'
+        Probs_fn = 'pr_mon_OBS_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        dsSSTobs_ann_base = csf.load_observations(path,SSTobs_fn)
+        dsSWobs_ann_base = csf.load_observations(path,SWobs_ann_fn)
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_his = csf.load_observations(path,Tobs_his_fn)
+        dsSLPobs_djf_base = csf.load_observations(path,SLPobs_djf_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsSST_ann_base_delta = csf.compute_predictor_deltas(dsSST_ann_base,dsSSTobs_ann_base,'tos')
+        dsSW_ann_base_delta = csf.compute_predictor_deltas(dsSW_ann_base,dsSWobs_ann_base,'swcre')
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_his_delta = csf.compute_predictor_deltas(dsT_ann_his,dsTobs_ann_his,'tas')
+        dsSLP_djf_base_delta = csf.compute_predictor_deltas(dsSLP_djf_base,dsSLPobs_djf_base,'psl')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsSST_ann_base_delta, dsSW_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
+
+    ## CMIP5 CH202x Case
+    if cmip == 'CMIP6' and season_region == 'CH202x_CEU':
+        SST_fn = 'tos_mon_CMIP6_hist_g025_NAWH_ann_1995-2014_mean.nc'
+        T_base_fn = 'tas_mon_CMIP6_hist_g025_EUR_ann_1995-2014_mean.nc'
+        T_his_fn = 'tas_mon_CMIP6_hist_g025_EUR_ann_1950-1969_mean.nc'
+        Pr_fn = 'pr_mon_CMIP6_hist_g025_EOBS-CEU_jja_1995-2014_mean.nc'
+        SLP_djf_fn = 'psl_mon_CMIP6_hist_g025_NATL_djf_1950-2014_mean.nc'
+        Pr_djf_fn = 'pr_mon_CMIP6_hist_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        # load, filter for common models
+        dsSST_ann_base = csf.load_models(path,SST_fn,cmip,default_models=True)
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_his = csf.load_models(path,T_his_fn,cmip,default_models=True)
+        dsPr_jja_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+        dsSLP_djf_base = csf.load_models(path,SLP_djf_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_djf_fn,cmip,default_models=True)
+
+        # load observations
+        SSTobs_fn = 'tos_mon_OBS_g025_NAWH_ann_1995-2014_mean.nc'
+        Tobs_base_fn = 'tas_mon_OBS_g025_EUR_ann_1995-2014_mean.nc'
+        Tobs_his_fn = 'tas_mon_OBS_g025_EUR_ann_1950-1969_mean.nc'
+        Probs_fn = 'pr_mon_OBS_g025_EOBS-CEU_jja_1995-2014_mean.nc'
+        SLPobs_djf_fn = 'psl_mon_OBS_g025_NATL_djf_1950-2014_mean.nc'
+        Probs_djf_fn = 'pr_mon_OBS_g025_EOBS-CEU_djf_1995-2014_mean.nc'
+
+        dsSSTobs_ann_base = csf.load_observations(path,SSTobs_fn)
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_his = csf.load_observations(path,Tobs_his_fn)
+        dsProbs_jja_base = csf.load_observations(path,Probs_fn)
+        dsSLPobs_djf_base = csf.load_observations(path,SLPobs_djf_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_djf_fn)
+
+        # compute predictor-obs RMSEs
+        dsSST_ann_base_delta = csf.compute_predictor_deltas(dsSST_ann_base,dsSSTobs_ann_base,'tos')
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_his_delta = csf.compute_predictor_deltas(dsT_ann_his,dsTobs_ann_his,'tas')
+        dsPr_jja_base_delta = csf.compute_predictor_deltas(dsPr_jja_base,dsProbs_jja_base,'pr')
+        dsSLP_djf_base_delta = csf.compute_predictor_deltas(dsSLP_djf_base,dsSLPobs_djf_base,'psl')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsSST_ann_base_delta, dsT_ann_base_delta, dsT_ann_his_delta, dsPr_jja_base_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
+
 
 def pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region):
     if cmip not in ['CMIP5','CMIP6']:
@@ -230,12 +402,24 @@ def pre_process_spread(path, cmip, im_or_em, season_region):
     if cmip == 'CMIP5' and season_region == 'DJF_NEU' :
         changeT_fn = 'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc'
+    if cmip == 'CMIP5' and season_region == 'DJF_CEU' :
+        changeT_fn = 'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc'
+        changePr_fn = 'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc'
+    if cmip == 'CMIP5' and season_region == 'CH202x_CEU' :
+        changeT_fn = 'tas_CMIP5_rcp85_CEU_ann_2041-2060_1995-2014_diff.nc'
+        changePr_fn = 'pr_CMIP5_rcp85_CEU_ann_2041-2060_1995-2014_diff.nc'
     if cmip == 'CMIP6' and season_region == 'JJA_CEU' :
         changeT_fn = 'tas_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc'
     if cmip == 'CMIP6' and season_region == 'DJF_NEU' :
         changeT_fn = 'tas_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc'
+    if cmip == 'CMIP6' and season_region == 'DJF_CEU' :
+        changeT_fn = 'tas_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc'
+        changePr_fn = 'pr_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc'
+    if cmip == 'CMIP6' and season_region == 'CH202x_CEU' :
+        changeT_fn = 'tas_CMIP6_SSP585_CEU_ann_2041-2060_1995-2014_diff.nc'
+        changePr_fn = 'pr_CMIP6_SSP585_CEU_ann_2041-2060_1995-2014_diff.nc'
 
     # load, filter for common models
     dsT_target_ts = csf.load_models(path,changeT_fn,cmip,default_models=True)

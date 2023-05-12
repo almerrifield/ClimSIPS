@@ -29,7 +29,7 @@ def shannon_entropy(p):
 
 def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
     filename = optimal_models_csv
-    alpha_steps = 10
+    alpha_steps = 10 # change here
     with open(filename, 'r') as f:
         reader = csv.DictReader(f)
         data = []
@@ -49,7 +49,7 @@ def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
     models_to_number = {}
     for d in data:
         ia, ib = alphas.index(d['alpha']),  betas.index(d['beta'])
-        assert ia+ib <= 10
+        assert ia+ib <= alpha_steps # change here
         models_str = d['models_str']
         models_to_number.setdefault(models_str, len(models_to_number))
         member_combo_data[ia][ib] = models_to_number[models_str]
@@ -68,7 +68,7 @@ def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
             if c < 0:
                 continue
             ia, ib = alphas.index(a),  betas.index(b)
-            data[(ia, 10-ia-ib, ib)] = member_combo_data[ia][ib] #change here
+            data[(ia, alpha_steps-ia-ib, ib)] = member_combo_data[ia][ib] #change here
 
 
     from matplotlib.colors import ListedColormap,LinearSegmentedColormap
@@ -122,7 +122,8 @@ def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
     "ivory",
     "silver",
     "tab:gray",
-    "k"]
+    "k",
+    "white"]
 
     cmap = ListedColormap(color_order[:(v+1)])
 

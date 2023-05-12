@@ -19,8 +19,8 @@ def main():
     indep_path='/net/h2o/climphys/meranna/Data/predictors/independence/'
     # ensemble and representation
     cmip = 'CMIP6'
-    im_or_em = 'EM'
-    season_region = 'DJF_NEU'
+    im_or_em = 'IM'
+    season_region = 'JJA_CEU'
     #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
@@ -44,9 +44,10 @@ def main():
     beta = 10 # number of steps in alpha's [0,1] range
     perf_cutoff = 2 # performance threshold to pre-filter models (if desired)
     max_workers = 1
+    min2 = True
     ###################################################
 
-    optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, season_region, m, alpha, beta, perf_cutoff, max_workers=max_workers)
+    optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, season_region, m, alpha, beta, perf_cutoff, max_workers=max_workers,min2=min2)
 
     csp.selection_triangle(optimal_models_csv,plotname="optimal_subsets.png")
 

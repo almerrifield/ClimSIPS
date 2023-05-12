@@ -542,9 +542,9 @@ CMIP6_ECS_members = ['ACCESS-CM2-r1i1p1f1', 'ACCESS-CM2-r2i1p1f1', 'ACCESS-CM2-r
        'TaiESM1-r1i1p1f1', 'UKESM1-0-LL-r1i1p1f2', 'UKESM1-0-LL-r2i1p1f2',
        'UKESM1-0-LL-r3i1p1f2', 'UKESM1-0-LL-r4i1p1f2', 'UKESM1-0-LL-r8i1p1f2']
 
-
 ### select predictors here ###
 CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_swcre_members, CMIP6_pr_members,CMIP6_tas_members,CMIP6_ECS_members)
+#CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_pr_members, CMIP6_tas_members, CMIP6_psl_members)
 CMIP6_common_members = reduce(np.intersect1d, CMIP6_predictor_choices)
 
 
@@ -722,8 +722,8 @@ CMIP5_ECS_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1','BNU-ESM-r1i1p1', 'C
 
 ### select predictors here ###
 CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_swcre_members, CMIP5_pr_members,CMIP5_tas_members,CMIP5_ECS_members)
+#CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_pr_members, CMIP5_tas_members, CMIP5_psl_members)
 CMIP5_common_members = reduce(np.intersect1d, CMIP5_predictor_choices)
-
 
 #################################
 ## Selecting Spread-i-est Members
@@ -767,7 +767,6 @@ def list_for_max_spread(dict_ind):
     mem = list(dict_ind.keys())
     return mem
 
-
 def CMIP6_spread_maximizing_members(CMIP6_common_members,season_region):
     path ='/net/h2o/climphys/meranna/Data/predictors/spread/'
 
@@ -784,6 +783,13 @@ def CMIP6_spread_maximizing_members(CMIP6_common_members,season_region):
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
         dsPr6 = xr.open_dataset(path+'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = dsPr6.sel(member=CMIP6_common_members)
+
+    if season_region == 'DJF_CEU':
+        dsT6 = xr.open_dataset(path+'tas_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = dsT6.sel(member=CMIP6_common_members)
+
+        dsPr6 = xr.open_dataset(path+'pr_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     targets = [dsT6,dsPr6]
@@ -917,8 +923,6 @@ def CMIP6_spread_maximizing_members(CMIP6_common_members,season_region):
     mem_out = list_for_max_spread(dict_ind)
     return mem_out
 
-######################################################
-
 def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
     path ='/net/h2o/climphys/meranna/Data/predictors/spread/'
 
@@ -935,6 +939,13 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
         dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = dsPr5.sel(member=CMIP5_common_members)
+
+    if season_region == 'DJF_NEU':
+        dsT5 = xr.open_dataset(path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = dsT5.sel(member=CMIP5_common_members)
+
+        dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     targets = [dsT5,dsPr5]
@@ -996,3 +1007,15 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
 
     mem_out = list_for_max_spread(dict_ind)
     return mem_out
+
+#################################
+## CH202x
+#################################
+
+CMIP6_RCM_common_members = ['CNRM-CM6-1-r1i1p1f2','CanESM5-r1i1p1f1','EC-Earth3-r11i1p1f1',
+'EC-Earth3-r1i1p1f1','HadGEM3-GC31-MM-r1i1p1f3','IPSL-CM6A-LR-r1i1p1f1',
+'MIROC6-r1i1p1f1','MPI-ESM1-2-LR-r1i1p1f1','MPI-ESM1-2-LR-r2i1p1f1', 'MPI-ESM1-2-LR-r3i1p1f1','NorESM2-MM-r1i1p1f1']
+
+CMIP5_RCM_common_members = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r12i1p1',
+'EC-EARTH-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
+'MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1','NorESM1-M-r1i1p1']

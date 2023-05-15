@@ -27,9 +27,9 @@ def shannon_entropy(p):
             continue
     return -1.*s
 
-def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
+def selection_triangle(optimal_models_csv,no_of_steps,plotname="optimal_subsets.png"):
     filename = optimal_models_csv
-    alpha_steps = 10 # change here
+
     with open(filename, 'r') as f:
         reader = csv.DictReader(f)
         data = []
@@ -49,7 +49,7 @@ def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
     models_to_number = {}
     for d in data:
         ia, ib = alphas.index(d['alpha']),  betas.index(d['beta'])
-        assert ia+ib <= alpha_steps # change here
+        assert ia+ib <= no_of_steps # change here
         models_str = d['models_str']
         models_to_number.setdefault(models_str, len(models_to_number))
         member_combo_data[ia][ib] = models_to_number[models_str]
@@ -68,7 +68,7 @@ def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
             if c < 0:
                 continue
             ia, ib = alphas.index(a),  betas.index(b)
-            data[(ia, alpha_steps-ia-ib, ib)] = member_combo_data[ia][ib] #change here
+            data[(ia, no_of_steps-ia-ib, ib)] = member_combo_data[ia][ib] #change here
 
 
     from matplotlib.colors import ListedColormap,LinearSegmentedColormap
@@ -134,25 +134,25 @@ def selection_triangle(optimal_models_csv,plotname="optimal_subsets.png"):
     fig = plt.figure(figsize=(13,6))
     ax = fig.add_subplot(111)
 
-    tax = ternary.TernaryAxesSubplot(ax=ax, scale=alpha_steps)
+    tax = ternary.TernaryAxesSubplot(ax=ax, scale=no_of_steps)
     # Remove default Matplotlib Axes
     tax.boundary(linewidth=1)
     nr_of_ticks=11
     ticks = [i/(nr_of_ticks-1)*100 for i in range(nr_of_ticks)]
-    tax.gridlines(color="w", multiple=alpha_steps/(nr_of_ticks-1), linewidth=0.5)
+    tax.gridlines(color="w", multiple=no_of_steps/(nr_of_ticks-1), linewidth=0.5)
     tax.get_axes().axis('off')
     tax.clear_matplotlib_ticks()
 
-    tax.ticks(ticks, axis='b', linewidth=1, multiple=alpha_steps/(nr_of_ticks-1), tick_formats="%i%%", offset=.018, clockwise=True,fontsize=12)
-    tax.ticks(ticks, axis='r', linewidth=1, multiple=alpha_steps/(nr_of_ticks-1), tick_formats="%i%%", offset=.026, clockwise=True,fontsize=12)
-    tax.ticks(ticks, axis='l', linewidth=1, multiple=alpha_steps/(nr_of_ticks-1), tick_formats="%i%%", offset=.028, clockwise=True,fontsize=12)
+    tax.ticks(ticks, axis='b', linewidth=1, multiple=no_of_steps/(nr_of_ticks-1), tick_formats="%i%%", offset=.018, clockwise=True,fontsize=12)
+    tax.ticks(ticks, axis='r', linewidth=1, multiple=no_of_steps/(nr_of_ticks-1), tick_formats="%i%%", offset=.026, clockwise=True,fontsize=12)
+    tax.ticks(ticks, axis='l', linewidth=1, multiple=no_of_steps/(nr_of_ticks-1), tick_formats="%i%%", offset=.028, clockwise=True,fontsize=12)
     tax.set_axis_limits({key:(0,100) for key in 'lrb'})
     tax.get_ticks_from_axis_limits(10)
     tax.left_axis_label(r"Performance ([1-$\alpha$-$\beta$] $\times$ 100%)", offset=.15,fontsize=14)
     tax.right_axis_label(r"Independence ($\alpha$ $\times$ 100%)", offset=.15,fontsize=14)
     tax.bottom_axis_label(r"Spread  ($\beta$ $\times$ 100%)",offset=0.05,fontsize=14)
 ##################################################
-    ternary.heatmap(data, scale=alpha_steps, ax=ax, style="hexagonal", cmap=cmap_r, colorbar=False)
+    ternary.heatmap(data, scale=no_of_steps, ax=ax, style="hexagonal", cmap=cmap_r, colorbar=False)
     models_list = [k for k,v in sorted(models_to_number.items(), key=lambda it: it[1])]
     vmin = min(data.values())
     vmax = max(data.values())

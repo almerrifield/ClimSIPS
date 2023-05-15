@@ -298,7 +298,7 @@ def normalize_independence_matrix(ds):
 ##################################################################
 
 # create csv with minimizing value and subset listed for each alpha-beta combo (one core)
-def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,min2=False):
+def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, min2=False):
     min2_text=""
     if min2:
         min2_text='min2_'
@@ -314,19 +314,20 @@ def multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cu
                 beta = beta_idx/beta_steps
                 if alpha + beta > 1:
                     continue
-                min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True,min2=min2)
+                min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True, min2=min2)
                 print(alpha, beta, min_val, min_member)
                 writer.writerow([alpha,beta,min_val]+min_member)
     return filename
+
 # finds minimizing subset
-def single_run(m, alpha, beta, perf_cutoff, data, silent=False,min2=False):
+def single_run(m, alpha, beta, perf_cutoff, data, silent=False, min2=False):
     n = len(data.delta_q)
     perf = xr.DataArray(data.delta_q.data, dims=['member'], coords=dict(member=data.delta_q.coords['member']))
     change_data = data.change.data
     dist_data = data.delta_i.data
     change = xr.DataArray(change_data, dims=['member','member_model'], coords=dict(member=data.change.coords['member'],member_model=data.change.coords['member_model']))
     dist = xr.DataArray(dist_data, dims=['member','member_model'], coords=dict(member=data.delta_i.coords['member'],member_model=data.delta_i.coords['member_model']))
-    min_val, min_members = get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=silent,min2=min2)
+    min_val, min_members = get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=silent, min2=min2)
     return min_val, min_members
 
 # normalizing metrics so they contribute equally to the cost function
@@ -422,11 +423,11 @@ def get_best_m_models(perf, dist, change, m, alpha, beta, perf_cutoff, silent=Tr
 
 # creates csv in parallel (when multiple cores are available)
 def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, max_workers, min2=False):
-    single_run_subdir = cmip+'_'+season_region+'_'+im_or_em
     print(f'running with {max_workers} workers.')
     min2_text=""
     if min2:
         min2_text='min2_'
+    single_run_subdir = cmip+'_'+season_region+'_'+min2_text+im_or_em
     filename=Path(cmip+'_'+im_or_em+'_'+season_region+'_'+min2_text+'alpha-beta-scan.csv')
     if filename.exists():
         raise RuntimeError('file exists!')
@@ -444,7 +445,7 @@ def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps
                 single_run_file.parent.mkdir(parents=True, exist_ok=True)
                 if single_run_file.exists():
                     continue
-                future = pool.submit(single_run_with_save, single_run_file, m, alpha, beta, perf_cutoff, data, silent=True,min2=min2)
+                future = pool.submit(single_run_with_save, single_run_file, m, alpha, beta, perf_cutoff, data, silent=True, min2=min2)
                 futures.append(future)
                 print(f'submitted {alpha_idx}/{beta_idx}')
 
@@ -469,8 +470,8 @@ def multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps
     return filename
 
 # saves as an intermidiate step when running in parallel
-def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=False,min2=False):
-    min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True,min2=min2)
+def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=False, min2=False):
+    min_val, min_member = single_run(m, alpha, beta, perf_cutoff, data, silent=True, min2=min2)
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([alpha,beta,min_val]+min_member)
@@ -488,9 +489,9 @@ def make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile='perf_ind_sp
     dsWi['pr_change'] = targets[1]
     dsWi.to_netcdf(outfile)
 
-def select_models(outfile, cmip, im_or_em, season_region, m, alpha_steps, beta_steps, perf_cutoff,max_workers=1,min2=False):
+def select_models(outfile, cmip, im_or_em, season_region, m, alpha_steps, beta_steps, perf_cutoff,max_workers=1, min2=False):
     data = xr.open_dataset(outfile,use_cftime = True)
     if max_workers==1:
-        return multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,min2=min2)
+        return multi_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, min2=min2)
     else:
-        return multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff,data,max_workers,min2=min2)
+        return multi_parallel_run(m, cmip, im_or_em, season_region, alpha_steps, beta_steps, perf_cutoff, data, max_workers, min2=min2)

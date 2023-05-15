@@ -43,13 +43,13 @@ def main():
     alpha = 10 # number of steps in alpha's [0,1] range
     beta = 10 # number of steps in alpha's [0,1] range
     perf_cutoff = 2 # performance threshold to pre-filter models (if desired)
-    max_workers = 1
+    max_workers = 2
     min2 = True
     ###################################################
 
-    optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, season_region, m, alpha, beta, perf_cutoff, max_workers=max_workers,min2=min2)
+    optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, season_region, m, alpha, beta, perf_cutoff, max_workers=max_workers, min2=min2)
 
-    csp.selection_triangle(optimal_models_csv,plotname="optimal_subsets.png")
+    csp.selection_triangle(optimal_models_csv,alpha,plotname="optimal_subsets.png")
 
     print('---- subselection complete ----')
 

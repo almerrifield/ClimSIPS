@@ -13,11 +13,12 @@ The current code allows the user to specify the following:
 - selection from CMIP5 or CMIP6 (models listed in Merrifield et al. 2022)
 - flexibility of custom CMIP5 and CMIP6 starting ensembles
 - models represented by their ensemble mean or by an individual member (selected to maximizes overall spread in the ensemble)
-- region and season of targeted projection and performance predictors; currently JJA CEU and DJF NEU implemented
+- region and season of targeted projection and performance predictors; currently JJA CEU, DJF CEU, and DJF NEU implemented
 - size of desired subset
 - resolution of the ternary contour plot (alpha and beta step sizes) 
 - a performance threshold to filter out lower performing models prior to the selection step
 - an option to run the selection step in parallel on multiple cores
+- option to output the minimum or the next to minimum of the cost function
 
 
 The following options are forthcoming:

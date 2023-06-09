@@ -544,9 +544,7 @@ CMIP6_ECS_members = ['ACCESS-CM2-r1i1p1f1', 'ACCESS-CM2-r2i1p1f1', 'ACCESS-CM2-r
 
 ### select predictors here ###
 CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_swcre_members, CMIP6_pr_members,CMIP6_tas_members,CMIP6_ECS_members)
-#CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_pr_members, CMIP6_tas_members, CMIP6_psl_members)
 CMIP6_common_members = reduce(np.intersect1d, CMIP6_predictor_choices)
-
 
 # members available for each predictor, CMIP5
 CMIP5_tos_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'BNU-ESM-r1i1p1',
@@ -722,7 +720,6 @@ CMIP5_ECS_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1','BNU-ESM-r1i1p1', 'C
 
 ### select predictors here ###
 CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_swcre_members, CMIP5_pr_members,CMIP5_tas_members,CMIP5_ECS_members)
-#CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_pr_members, CMIP5_tas_members, CMIP5_psl_members)
 CMIP5_common_members = reduce(np.intersect1d, CMIP5_predictor_choices)
 
 #################################
@@ -1011,10 +1008,6 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
 #################################
 ## CH202x
 #################################
-
-CMIP6_RCM_common_members = ['CNRM-CM6-1-r1i1p1f2','CanESM5-r1i1p1f1','EC-Earth3-r11i1p1f1',
-'EC-Earth3-r1i1p1f1','HadGEM3-GC31-MM-r1i1p1f3','IPSL-CM6A-LR-r1i1p1f1',
-'MIROC6-r1i1p1f1','MPI-ESM1-2-LR-r1i1p1f1','MPI-ESM1-2-LR-r2i1p1f1', 'MPI-ESM1-2-LR-r3i1p1f1','NorESM2-MM-r1i1p1f1']
 
 CMIP5_RCM_common_members = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r12i1p1',
 'EC-EARTH-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',

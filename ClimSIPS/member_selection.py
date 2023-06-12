@@ -938,7 +938,7 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
         dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
-    if season_region == 'DJF_NEU':
+    if season_region == 'DJF_CEU':
         dsT5 = xr.open_dataset(path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 

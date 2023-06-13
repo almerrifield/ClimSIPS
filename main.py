@@ -13,15 +13,16 @@ def main():
     print('==== starting subselection ====')
 
     ############# INPUTS for pre-processing #############
+    # todo the following should probably be variables that are passed to the function as they seem to be modified
     # paths to predictors
     pred_path = "./data/predictors/"
     perf_path = pred_path + 'performance/'
     spread_path = pred_path + 'spread/'
     indep_path =pred_path + 'independence/'
     # ensemble and representation
-    cmip = 'CH202x'
+    cmip = 'CMIP6'
     im_or_em = 'IM'
-    season_region = 'DJF_CEU'
+    season_region = 'JJA_CEU'
     #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
@@ -40,7 +41,7 @@ def main():
 
 
     ############# INPUTS for subselection #############
-    m = 5 # number of models in the subset
+    m = 2 # number of models in the subset
     alpha = 10 # number of steps in alpha's [0,1] range
     beta = 10 # number of steps in alpha's [0,1] range
     perf_cutoff = 2 # performance threshold to pre-filter models (if desired)

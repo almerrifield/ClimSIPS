@@ -33,6 +33,10 @@ def select_default_common_models(ds,CMIP):
         members = csms.CMIP6_common_members
     if CMIP == 'CMIP5':
         members = csms.CMIP5_common_members
+    if CMIP == 'CH202x':
+        members = csms.CMIP5_RCM_common_members
+    if CMIP == 'CH202x_CMIP6':
+        members = csms.CMIP6_RCM_common_members
     return ds.sel(member=members)
 
 # load performance predictors
@@ -68,21 +72,20 @@ def normalize_predictor_deltas(ds,ds_cat):
     ds_norm = ds/ds_cat.mean('member')
     return ds_norm
 
-# compute performace metricI
+# compute performace metric
 # need to be able to compute for an arbitrary number of predictors
 def performance_metric(*ds_list):
     return sum(ds_list)/len(ds_list)
 
 # choose ensemble mean or individual member
-# TO DO: generalize ensemble mean for any base select
-# TO DO: provide way to select the spread-i-est members, generalize
+# TO DO: generalize ensemble mean for any base set
 def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
     if key:
         dss = ds[key]
     else:
         dss = ds
     ## CMIP6 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU']:
+    if choice == 'EM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
         hadgemmm = dss.sel(member = ['HadGEM3-GC31-MM-r1i1p1f3',
         'HadGEM3-GC31-MM-r2i1p1f3', 'HadGEM3-GC31-MM-r3i1p1f3',
         'HadGEM3-GC31-MM-r4i1p1f3']).mean('member')
@@ -192,7 +195,7 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         dss.sel(member='NorESM2-MM-r1i1p1f1'),dss.sel(member='TaiESM1-r1i1p1f1'),uk],dim='member')
         return ds_all
 # CMIP5 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU']:
+    if choice == 'EM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
         cesm1 = dss.sel(member=['CESM1-CAM5-r1i1p1', 'CESM1-CAM5-r2i1p1', 'CESM1-CAM5-r3i1p1']).mean('member')
         cesm1['member'] = 'CESM1-CAM5-r0i0p0'
         miroc5 = dss.sel(member=['MIROC5-r1i1p1', 'MIROC5-r2i1p1', 'MIROC5-r3i1p1']).mean('member')
@@ -243,14 +246,9 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-# CMIP6 RCM by spread
-    if choice == 'IM' and CMIP == 'CMIP6' and season_region == 'CH202x_CEU':
-        mem_out = csms.CMIP6_RCM_common_members
-        dss = dss.sel(member=mem_out)
-        return dss.sortby(dss.member)
-# CMIP5 by spread
-    if choice == 'IM' and CMIP == 'CMIP5' and season_region == 'CH202x_CEU':
-        mem_out = csms.CMIP5_RCM_common_members
+# CMIP5 RCM by spread
+    if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
+        mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
 
@@ -270,7 +268,6 @@ def get_squared_diff(ds):
             a = (mod1-mod2)**2
             res.loc[dict(member=mod1.member, member_model=mod2.member)] = a
     return res.where(res!=0)
-
 
 # compute independence matrix
 def get_error(ds):

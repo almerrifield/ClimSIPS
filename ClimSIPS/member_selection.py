@@ -544,9 +544,7 @@ CMIP6_ECS_members = ['ACCESS-CM2-r1i1p1f1', 'ACCESS-CM2-r2i1p1f1', 'ACCESS-CM2-r
 
 ### select predictors here ###
 CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_swcre_members, CMIP6_pr_members,CMIP6_tas_members,CMIP6_ECS_members)
-#CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_pr_members, CMIP6_tas_members, CMIP6_psl_members)
 CMIP6_common_members = reduce(np.intersect1d, CMIP6_predictor_choices)
-
 
 # members available for each predictor, CMIP5
 CMIP5_tos_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'BNU-ESM-r1i1p1',
@@ -722,8 +720,19 @@ CMIP5_ECS_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1','BNU-ESM-r1i1p1', 'C
 
 ### select predictors here ###
 CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_swcre_members, CMIP5_pr_members,CMIP5_tas_members,CMIP5_ECS_members)
-#CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_pr_members, CMIP5_tas_members, CMIP5_psl_members)
 CMIP5_common_members = reduce(np.intersect1d, CMIP5_predictor_choices)
+
+# Driving models for CH202x RCMs
+CMIP5_RCM_common_members = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r12i1p1',
+'EC-EARTH-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
+'MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1','NorESM1-M-r1i1p1']
+
+# From Sobolowski et al. (2023)
+# EURO-CORDEX CMIP6 GCM Selection & Ensemble Design: Best Practices and Recommendations.
+# Zenodo. https://doi.org/10.5281/zenodo.7673400
+CMIP6_RCM_common_members = ['CESM2-r11i1p1f1','CMCC-CM2-SR5-r1i1p1f1',
+'CNRM-ESM2-1-r1i1p1f2', 'EC-Earth3-Veg-r1i1p1f1','IPSL-CM6A-LR-r1i1p1f1',
+'MIROC6-r1i1p1f1', 'MPI-ESM1-2-HR-r1i1p1f1','NorESM2-MM-r1i1p1f1', 'UKESM1-0-LL-r1i1p1f2']
 
 #################################
 ## Selecting Spread-i-est Members
@@ -941,7 +950,7 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
         dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
-    if season_region == 'DJF_NEU':
+    if season_region == 'DJF_CEU':
         dsT5 = xr.open_dataset(path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
@@ -949,6 +958,7 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     targets = [dsT5,dsPr5]
+
 
     # normalize targets
     ds_norm = []
@@ -1008,14 +1018,53 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region):
     mem_out = list_for_max_spread(dict_ind)
     return mem_out
 
-#################################
-## CH202x
-#################################
+def CMIP5_RCM_spread_maximizing_members(CMIP5_RCM_common_members,season_region):
+    path ='/net/h2o/climphys/meranna/Data/predictors/spread/'
 
-CMIP6_RCM_common_members = ['CNRM-CM6-1-r1i1p1f2','CanESM5-r1i1p1f1','EC-Earth3-r11i1p1f1',
-'EC-Earth3-r1i1p1f1','HadGEM3-GC31-MM-r1i1p1f3','IPSL-CM6A-LR-r1i1p1f1',
-'MIROC6-r1i1p1f1','MPI-ESM1-2-LR-r1i1p1f1','MPI-ESM1-2-LR-r2i1p1f1', 'MPI-ESM1-2-LR-r3i1p1f1','NorESM2-MM-r1i1p1f1']
+    if season_region == 'JJA_CEU':
+    # select default models
+        dsT5 = xr.open_dataset(path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-CMIP5_RCM_common_members = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r12i1p1',
-'EC-EARTH-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
-'MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1','NorESM1-M-r1i1p1']
+        dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
+
+    if season_region == 'DJF_NEU':
+        dsT5 = xr.open_dataset(path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
+
+        dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
+
+    if season_region == 'DJF_CEU':
+        dsT5 = xr.open_dataset(path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
+
+        dsPr5 = xr.open_dataset(path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
+
+    targets = [dsT5,dsPr5]
+
+    # normalize targets
+    ds_norm = []
+    for ds in targets:
+        ds_norm.append(normalize_spread_component(ds))
+
+    # fixed ponts - individuals
+    keys = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1',
+    'MIROC5-r1i1p1','NorESM1-M-r1i1p1']
+
+    # create a dictionary with fixed point keys and position
+    dict_ind = {}
+    for ii in range(len(keys)):
+        dict_ind[keys[ii]] = (ds_norm[0].sel(member=keys[ii]).tas.item(0),ds_norm[1].sel(member=keys[ii]).pr.item(0))
+
+    # determing spread-maximizing member in order, CMIP5
+    keys = ['EC-EARTH-r12i1p1','EC-EARTH-r1i1p1']
+    dict_ind = select_spread_maximizing_member(keys,ds_norm,dict_ind)
+
+    keys = ['MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1']
+    dict_ind = select_spread_maximizing_member(keys,ds_norm,dict_ind)
+
+    mem_out = list_for_max_spread(dict_ind)
+    return mem_out

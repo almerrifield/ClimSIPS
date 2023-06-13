@@ -19,7 +19,7 @@ from .. import member_selection as csms
 __all__ = ["spread_scatter"]
 
 def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter.png"):
-    if cmip not in ['CMIP5','CMIP6']:
+    if cmip not in ['CMIP5','CMIP6','CH202x']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
@@ -129,17 +129,20 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         'CCSM4-r5i1p1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1), # DJF case
         'CESM1-CAM5-r1i1p1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1),
         'CESM1-CAM5-r3i1p1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1), # DJF case
+        'CNRM-CM5-r1i1p1': dict(c='cornflowerblue',s=20,marker='x',alpha=1), # RCM case
         'CNRM-CM5-r2i1p1': dict(c='cornflowerblue',s=20,marker='x',alpha=1),
         'CNRM-CM5-r4i1p1': dict(c='cornflowerblue',s=20,marker='x',alpha=1), # DJF case
         'CSIRO-Mk3-6-0-r10i1p1': dict(c='deeppink',s=20,marker='x',alpha=1),
         'CanESM2-r5i1p1': dict(c='dodgerblue',s=20,marker='x',alpha=1),
         'CanESM2-r3i1p1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # DJF case
+        'CanESM2-r1i1p1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # RCM case
         'GFDL-CM3-r1i1p1': dict(c='indigo',s=20,marker='x',alpha=1),
         'GFDL-ESM2G-r1i1p1': dict(c='indigo',s=20,marker='o',alpha=1),
         'GFDL-ESM2M-r1i1p1': dict(c='indigo',s=20,marker='^',alpha=1),
         'GISS-E2-H-r1i1p3': dict(c='blueviolet',s=20,marker='x',alpha=1),
         'GISS-E2-R-r1i1p3': dict(c='blueviolet',s=20,marker='o',alpha=1),
         'GISS-E2-R-r2i1p3': dict(c='blueviolet',s=20,marker='o',alpha=1), # DJF case
+        'HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='^',alpha=1), # RCM case
         'HadGEM2-ES-r4i1p1': dict(c='tab:red',s=20,marker='^',alpha=1),
         'IPSL-CM5A-LR-r1i1p1': dict(c='royalblue',s=20,marker='x',alpha=1),
         'IPSL-CM5A-LR-r2i1p1': dict(c='royalblue',s=20,marker='x',alpha=1), ## alternative, similar spread generator
@@ -147,6 +150,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         'IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='o',alpha=1),
         'IPSL-CM5B-LR-r1i1p1': dict(c='royalblue',s=20,marker='^',alpha=1),
         'MIROC-ESM-r1i1p1': dict(c='lightsalmon',s=20,marker='x',alpha=1),
+        'MIROC5-r1i1p1': dict(c='lightsalmon',s=20,marker='o',alpha=1), # RCM case
         'MIROC5-r3i1p1': dict(c='lightsalmon',s=20,marker='o',alpha=1),
         'MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='x',alpha=1), # DJF case
         'MPI-ESM-LR-r2i1p1': dict(c='tab:orange',s=20,marker='x',alpha=1),
@@ -156,7 +160,8 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
         'NorESM1-ME-r1i1p1': dict(c='darkgoldenrod',s=30,marker='*',alpha=1),
         'bcc-csm1-1-m-r1i1p1': dict(c='silver',s=20,marker='x',alpha=1),
         'bcc-csm1-1-r1i1p1': dict(c='silver',s=20,marker='o',alpha=1),
-        'inmcm4-r1i1p1': dict(c='mediumseagreen',s=20,marker='x',alpha=1), # end CMIP5 IM
+        'inmcm4-r1i1p1': dict(c='mediumseagreen',s=20,marker='x',alpha=1),
+        'EC-EARTH-r1i1p1': dict(c='darkgreen',s=20,marker='x',alpha=1), # end CMIP5 IM
         'ACCESS1-0-r1i1p1': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP5 EM
         'ACCESS1-3-r1i1p1': dict(c='tab:red',s=20,marker='o',alpha=1),
         'CCSM4-r0i0p0': dict(c='darkgoldenrod',s=20,marker='x',alpha=1),
@@ -213,6 +218,8 @@ def spread_scatter(filename,cmip,im_or_em,season_region,plotname="spread_scatter
             'MPI-ESM-LR-r0i0p0', 'MPI-ESM-MR-r1i1p1', 'MRI-CGCM3-r1i1p1',
             'NorESM1-M-r1i1p1', 'NorESM1-ME-r1i1p1', 'bcc-csm1-1-m-r1i1p1',
             'bcc-csm1-1-r1i1p1', 'inmcm4-r1i1p1']
+    if cmip == 'CH202x' and im_or_em == 'IM':
+        models =  csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region)
 
     # plot quadrant boundries (medians)
     plt.axvline(dsWi['tas_change'].median("member"),color='k',linewidth=1,linestyle='dashed',alpha=0.2)

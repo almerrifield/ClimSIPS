@@ -16,7 +16,7 @@ import xskillscore
 __all__ = ["performance_order"]
 
 def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png"):
-    if cmip not in ['CMIP5','CMIP6']:
+    if cmip not in ['CMIP5','CMIP6','CH202x']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)

@@ -18,9 +18,9 @@ def main():
     spread_path='/net/h2o/climphys/meranna/Data/predictors/spread/'
     indep_path='/net/h2o/climphys/meranna/Data/predictors/independence/'
     # ensemble and representation
-    cmip = 'CMIP6'
+    cmip = 'CH202x'
     im_or_em = 'IM'
-    season_region = 'JJA_CEU'
+    season_region = 'DJF_CEU'
     #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
@@ -39,7 +39,7 @@ def main():
 
 
     ############# INPUTS for subselection #############
-    m = 2 # number of models in the subset
+    m = 5 # number of models in the subset
     alpha = 10 # number of steps in alpha's [0,1] range
     beta = 10 # number of steps in alpha's [0,1] range
     perf_cutoff = 2 # performance threshold to pre-filter models (if desired)

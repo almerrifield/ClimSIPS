@@ -33,6 +33,10 @@ def select_default_common_models(ds,CMIP):
         members = csms.CMIP6_common_members
     if CMIP == 'CMIP5':
         members = csms.CMIP5_common_members
+    if CMIP == 'CH202x':
+        members = csms.CMIP5_RCM_common_members
+    if CMIP == 'CH202x_CMIP6':
+        members = csms.CMIP6_RCM_common_members
     return ds.sel(member=members)
 
 # load performance predictors
@@ -243,8 +247,8 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
 # CMIP5 RCM by spread
-    if choice == 'IM' and CMIP == 'CMIP5' and season_region == 'CH202x_CEU':
-        mem_out = csms.CMIP5_RCM_common_members
+    if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
+        mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
 

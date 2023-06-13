@@ -29,7 +29,7 @@ def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_
     ################################################
     dsWi = xr.open_dataset(outfile,use_cftime = True)
 
-    dsWi = dsWi.assign_coords({"perf": ("member", dsWi.delta_q)})
+    dsWi = dsWi.assign_coords({"perf": ("member", dsWi.delta_q.data)})
     dsWi_sort = dsWi.sortby(['perf'],ascending=True)
 
     ind = np.arange(0,len(dsWi_sort.delta_q)*2,2)

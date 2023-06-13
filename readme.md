@@ -1,12 +1,6 @@
-# README
+# Subselecting CMIP5 or CMIP6 models using ClimSIPS
 
 ClimSIPS is a selection protocol designed to select subsets of CMIP5 or CMIP6 models for downstream applications. Results are presented in a ternary contour plot to illustrate how ascribing different levels of priority to performance, independence, and spread affects subset composition. 
-
-## Required input data
-The package imports performance, independence, and spread predictors. For the European case studies example, predictors are available here: 
-https://www.research-collection.ethz.ch/handle/20.500.11850/599312.
-
-To run the analyis, download the data from the archive above and put it into the folder `data` in the 
 
 Metrics are computed from the predictors and formatted for use in the selection step. Metrics are plotted for user edification:
 	- model performance, in order from highest performing (closest to observations) to lowest performing
@@ -33,27 +27,9 @@ To run ClimSIPS, you have to create a conda environment that contains the requir
 
 `conda env create --name ClimSIPS --file ClimSIPS.yml`
 
-## Recommende inputs
-To run ClimSIPS, please set the following inputs in main.py:
-   
-    ############# INPUTS for pre-processing #############
-    # paths to predictors
-    perf_path= '/***/predictors/performance/
-    spread_path='/***/predictors/spread/'
-    indep_path='/***/predictors/independence/'
-    # ensemble and representation
-    cmip = 'CMIP6' 
-    im_or_em = 'IM'
-    season_region = 'JJA_CEU' 
-    #####################################################
 
+## Required input data and corresponding
+The package imports performance, independence, and spread predictors. For the European case studies example, predictors are available here: 
+https://www.research-collection.ethz.ch/handle/20.500.11850/599312.
 
-    ############# INPUTS for subselection #############
-    m = 2 # number of models in the subset
-    alpha = 10 # number of steps in alpha's [0,1] range
-    beta = 10 # number of steps in alpha's [0,1] range
-    perf_cutoff = 2 # performance threshold to pre-filter models (if desired)
-    max_workers = 1
-    min2 = False
-    ###################################################
-
+To run the analyis, download the data from the archive above and put it into the folder `data` in the main project folder. 

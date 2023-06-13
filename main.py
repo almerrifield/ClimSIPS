@@ -14,7 +14,7 @@ def main():
 
     ############# INPUTS for pre-processing #############
     # paths to predictors
-    pred_path = "../data/predictors/"
+    pred_path = "./data/predictors/"
     perf_path = pred_path + 'performance/'
     spread_path = pred_path + 'spread/'
     indep_path =pred_path + 'independence/'

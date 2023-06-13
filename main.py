@@ -14,9 +14,10 @@ def main():
 
     ############# INPUTS for pre-processing #############
     # paths to predictors
-    perf_path='/net/h2o/climphys/meranna/Data/predictors/performance/'
-    spread_path='/net/h2o/climphys/meranna/Data/predictors/spread/'
-    indep_path='/net/h2o/climphys/meranna/Data/predictors/independence/'
+    pred_path = "../data/predictors/"
+    perf_path = pred_path + 'performance/'
+    spread_path = pred_path + 'spread/'
+    indep_path =pred_path + 'independence/'
     # ensemble and representation
     cmip = 'CH202x'
     im_or_em = 'IM'

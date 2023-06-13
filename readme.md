@@ -2,9 +2,11 @@
 
 ClimSIPS is a selection protocol designed to select subsets of CMIP5 or CMIP6 models for downstream applications. Results are presented in a ternary contour plot to illustrate how ascribing different levels of priority to performance, independence, and spread affects subset composition. 
 
+## Required input data
 The package imports performance, independence, and spread predictors. For the European case studies example, predictors are available here: 
 https://www.research-collection.ethz.ch/handle/20.500.11850/599312.
 
+To run the analyis, download the data from the archive above and put it into the folder `data` in the 
 
 Metrics are computed from the predictors and formatted for use in the selection step. Metrics are plotted for user edification:
 	- model performance, in order from highest performing (closest to observations) to lowest performing
@@ -25,6 +27,13 @@ The current code allows the user to specify the following:
 - an option to run the selection step in parallel on multiple cores (max_workers)
 - option to output the minimum or the next to minimum of the cost function (min2)
 
+## Environment
+
+To run ClimSIPS, you have to create a conda environment that contains the required packages. This can be done by running
+
+`conda env create --name ClimSIPS --file ClimSIPS.yml`
+
+## Recommende inputs
 To run ClimSIPS, please set the following inputs in main.py:
    
     ############# INPUTS for pre-processing #############

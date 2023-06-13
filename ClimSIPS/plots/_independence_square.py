@@ -39,8 +39,8 @@ def independence_square(outfile,cmip,im_or_em,season_region,plotname="independen
     if cmip == 'CH202x':
         ind_order = [1,2,3,4,5,6,7,8]
 
-    dsWi = dsWi.assign_coords({"fam_order": ("member", ind_order)})
-    dsWi = dsWi.assign_coords({"fam_order_2": ("member_model", ind_order)})
+    dsWi = dsWi.assign_coords({"fam_order": ("member", ind_order.data)})
+    dsWi = dsWi.assign_coords({"fam_order_2": ("member_model", ind_order.data)})
     dsWi_sort_a = dsWi.sortby(['fam_order'],ascending=False)
     dsWi_sort_b = dsWi_sort_a.sortby(['fam_order_2'],ascending=True)
     plt.pcolor(dsWi_sort_b['delta_i'],vmin=0,vmax=2.3,cmap='viridis')

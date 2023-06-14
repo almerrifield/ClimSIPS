@@ -1,4 +1,4 @@
-name: ClimSIPS_clone
+name: ClimSIPS
 channels:
   - plotly
   - conda-forge

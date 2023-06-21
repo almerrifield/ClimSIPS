@@ -1,0 +1,3 @@
+# Ignore files in the data directory except the readme_data.txt file
+data/*
+!data/readme_data.txt

@@ -3,20 +3,20 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python
-  - xarray
-  - numpy
-  - matplotlib
-  - scipy
-  - statsmodels
-  - xskillscore
+  - python=3.7.6
+  - xarray=0.15.1
+  - numpy=1.18.1
+  - matplotlib=3.2.1=0
+  - scipy=1.4.1
+  - statsmodels=0.11.1
+  - xskillscore=0.0.17
   - time
   - csvkit
   - pathlib
-  - cartopy
-  - regionmask
-  - python-ternary
-  - ca-certificates
-  - certifi
-  - openssl
-  - netcdf4
+  - cartopy=0.17.0
+  - regionmask=0.5.0
+  - python-ternary=1.0.8
+  - ca-certificates=2022.12.7
+  - certifi=2022.12.7
+  - openssl=1.1.1t
+  - netcdf4=1.5.1.2

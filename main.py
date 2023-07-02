@@ -8,15 +8,22 @@ import ClimSIPS.function as csf
 import ClimSIPS.pre_processing as cspp
 import ClimSIPS.plots as csp
 
+import sys
 
 def main():
     print('==== starting subselection ====')
 
     ############# INPUTS for pre-processing #############
+
+    if len(sys.argv) > 1:
+        predictors_root = sys.argv[1]
+    else:
+        predictors_root = "/net/h2o/climphys/meranna/Data/predictors/"
+    
     # paths to predictors
-    perf_path='/net/h2o/climphys/meranna/Data/predictors/performance/'
-    spread_path='/net/h2o/climphys/meranna/Data/predictors/spread/'
-    indep_path='/net/h2o/climphys/meranna/Data/predictors/independence/'
+    perf_path=predictors_root+'performance/'
+    spread_path=predictors_root+'spread/'
+    indep_path=predictors_root+'independence/'
     # ensemble and representation
     cmip = 'CMIP5'
     im_or_em = 'IM'

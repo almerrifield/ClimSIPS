@@ -5,7 +5,6 @@
 # qce
 # conda activate ternary_plot
 
-from pathlib import Path
 import csv
 import math
 import xarray as xr

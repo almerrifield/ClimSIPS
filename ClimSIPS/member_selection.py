@@ -4,7 +4,7 @@
 
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
+import functools
 
 from functools import reduce
 
@@ -790,44 +790,48 @@ def select_max_warming_members(keys,targets,ds_norm,dict_ind):
     dict_ind[max_key] = (ds_norm[0].sel(member=max_key).tas.item(0),ds_norm[1].sel(member=max_key).pr.item(0))
     return dict_ind
 
+@functools.lru_cache
+def open_cached(path, **kwgs):
+    return xr.open_dataset(path, **kwgs)
+
 #######################################################################
 def CMIP6_spread_maximizing_members(CMIP6_common_members,season_region,spread_path):
 
     if season_region == 'JJA_CEU':
     # select default models
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'JJA_CH':
     # select default models
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'DJF_NEU':
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'DJF_CEU':
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'DJF_CH':
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     targets = [dsT6,dsPr6]
@@ -965,39 +969,39 @@ def CMIP6_max_warming_members(CMIP6_common_members,season_region,spread_path):
 
     if season_region == 'JJA_CEU':
     # select default models
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'JJA_CH':
     # select default models
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'DJF_NEU':
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'DJF_CEU':
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     if season_region == 'DJF_CH':
-        dsT6 = xr.open_dataset(spread_path+'tas_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT6 = open_cached(spread_path+'tas_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT6 = dsT6.sel(member=CMIP6_common_members)
 
-        dsPr6 = xr.open_dataset(spread_path+'pr_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr6 = open_cached(spread_path+'pr_CMIP6_SSP585_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr6 = dsPr6.sel(member=CMIP6_common_members)
 
     targets = [dsT6,dsPr6]
@@ -1135,39 +1139,39 @@ def CMIP5_spread_maximizing_members(CMIP5_common_members,season_region,spread_pa
 
     if season_region == 'JJA_CEU':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'JJA_CH':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'DJF_NEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'DJF_CEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'DJF_CH':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     targets = [dsT5,dsPr5]
@@ -1235,39 +1239,39 @@ def CMIP5_max_warming_members(CMIP5_common_members,season_region,spread_path):
 
     if season_region == 'JJA_CEU':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'JJA_CH':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'DJF_NEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'DJF_CEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     if season_region == 'DJF_CH':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_common_members)
 
     targets = [dsT5,dsPr5]
@@ -1335,40 +1339,40 @@ def CMIP5_RCM_spread_maximizing_members(CMIP5_RCM_common_members,season_region,s
 
     if season_region == 'JJA_CEU':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'JJA_CH':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'DJF_NEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'DJF_CEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'DJF_CH':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     targets = [dsT5,dsPr5]
@@ -1401,40 +1405,40 @@ def CMIP5_RCM_max_warming_members(CMIP5_RCM_common_members,season_region,spread_
 
     if season_region == 'JJA_CEU':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'JJA_CH':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'DJF_NEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'DJF_CEU':
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     if season_region == 'DJF_CH':
     # select default models
-        dsT5 = xr.open_dataset(spread_path+'tas_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsT5 = open_cached(spread_path+'tas_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsT5 = dsT5.sel(member=CMIP5_RCM_common_members)
 
-        dsPr5 = xr.open_dataset(spread_path+'pr_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
+        dsPr5 = open_cached(spread_path+'pr_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc',use_cftime = True)
         dsPr5 = dsPr5.sel(member=CMIP5_RCM_common_members)
 
     targets = [dsT5,dsPr5]

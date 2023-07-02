@@ -4,18 +4,12 @@
 
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
 
-import datetime
-from scipy import signal, stats
-from statsmodels.stats.weightstats import DescrStatsW
 import xskillscore
 
 import itertools
 import math
 import time
-import random
-import sys
 import csv
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor

@@ -10,7 +10,19 @@ The current paper release of ClimSIPS runs in the environment specified in ClimS
 
 `source activate ClimSIPS`
 
-* Note: This environment is pinned for the paper. A less-pinned, development environment is forthcoming.
+* Note: This environment is pinned for the paper.
+
+We have also provided two alternative development environments.
+
+requirements.txt can be pip installed as:
+
+`pip install -r requirements.txt`
+
+or ClimSIPS_dev can be accessed with:
+
+`conda env create -f ClimSIPS_dev.yml`
+
+`source activate ClimSIPS_dev`
 
 ### Data
 The package imports performance, independence, and spread predictors. For the European case studies example, predictors are available here: 
@@ -36,17 +48,14 @@ The current code allows the user to specify the following:
 - an option to run the selection step in parallel on multiple cores (max_workers)
 - option to output the minimum or the next to minimum of the cost function (min2)
 
-To run ClimSIPS, please set the following inputs in main.py:
+To run ClimSIPS, please pass the path to your predictors directory (see above) and set the following inputs in main.py:
+
 ``` python
     ############# INPUTS for pre-processing #############
-    # paths to predictors
-    perf_path= '/***/predictors/performance/
-    spread_path='/***/predictors/spread/'
-    indep_path='/***/predictors/independence/'
     # ensemble and representation
-    cmip = 'CMIP6' 
+    cmip = 'CMIP5' 
     im_or_em = 'IM'
-    season_region = 'JJA_CEU' 
+    season_region = 'JJA_CEU'
     #####################################################
 
 

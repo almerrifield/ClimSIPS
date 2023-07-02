@@ -1,0 +1,6 @@
+xarray
+matplotlib
+scipy
+python-ternary
+xskillscore
+netcdf4

@@ -79,13 +79,13 @@ def performance_metric(*ds_list):
 
 # choose ensemble mean or individual member
 # TO DO: generalize ensemble mean for any base set
-def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
+def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,key=None):
     if key:
         dss = ds[key]
     else:
         dss = ds
     ## CMIP6 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
+    if choice == 'EM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH',"DJF_CH"]:
         hadgemmm = dss.sel(member = ['HadGEM3-GC31-MM-r1i1p1f3',
         'HadGEM3-GC31-MM-r2i1p1f3', 'HadGEM3-GC31-MM-r3i1p1f3',
         'HadGEM3-GC31-MM-r4i1p1f3']).mean('member')
@@ -194,8 +194,8 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         ipsl6a,kace,dss.sel(member='KIOST-ESM-r1i1p1f1'),miroce,miroc6,mpihr,mpi2lr,mri2,nesm3,
         dss.sel(member='NorESM2-MM-r1i1p1f1'),dss.sel(member='TaiESM1-r1i1p1f1'),uk],dim='member')
         return ds_all
-# CMIP5 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
+    ## CMIP5 by ensemble mean
+    if choice == 'EM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         cesm1 = dss.sel(member=['CESM1-CAM5-r1i1p1', 'CESM1-CAM5-r2i1p1', 'CESM1-CAM5-r3i1p1']).mean('member')
         cesm1['member'] = 'CESM1-CAM5-r0i0p0'
         miroc5 = dss.sel(member=['MIROC5-r1i1p1', 'MIROC5-r2i1p1', 'MIROC5-r3i1p1']).mean('member')
@@ -206,8 +206,7 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         ccsm4['member'] = 'CCSM4-r0i0p0'
         canesm2 = dss.sel(member=['CanESM2-r1i1p1', 'CanESM2-r2i1p1', 'CanESM2-r3i1p1', 'CanESM2-r4i1p1','CanESM2-r5i1p1']).mean('member')
         canesm2['member'] = 'CanESM2-r0i0p0'
-        mpilr = dss.sel(member=['CanESM2-r1i1p1', 'CanESM2-r2i1p1', 'CanESM2-r3i1p1', 'CanESM2-r4i1p1',
-        'CanESM2-r5i1p1']).mean('member')
+        mpilr = dss.sel(member=['MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1']).mean('member')
         mpilr['member'] = 'MPI-ESM-LR-r0i0p0'
         csiro = dss.sel(member=['CSIRO-Mk3-6-0-r10i1p1',
         'CSIRO-Mk3-6-0-r1i1p1', 'CSIRO-Mk3-6-0-r2i1p1', 'CSIRO-Mk3-6-0-r3i1p1',
@@ -236,21 +235,50 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,key=None):
         dss.sel(member='NorESM1-ME-r1i1p1'),dss.sel(member='bcc-csm1-1-m-r1i1p1'),
         dss.sel(member='bcc-csm1-1-r1i1p1'),dss.sel(member='inmcm4-r1i1p1')],dim='member')
         return ds_all
-# CMIP6 by spread
-    if choice == 'IM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
-        mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region)
+    ## CMIP5 RCM by ensemble means
+    if choice == 'EM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        mpilr = dss.sel(member=['MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1']).mean('member')
+        mpilr['member'] = 'MPI-ESM-LR-r0i0p0'
+        ecearth = dss.sel(member=['EC-EARTH-r12i1p1','EC-EARTH-r1i1p1']).mean('member')
+        ecearth['member'] = 'EC-EARTH-r0i0p0'
+        ds_all = xr.concat([dss.sel(member='CNRM-CM5-r1i1p1'),
+        dss.sel(member='CanESM2-r1i1p1'),ecearth,dss.sel(member='HadGEM2-ES-r1i1p1'),
+        dss.sel(member='IPSL-CM5A-MR-r1i1p1'),
+        dss.sel(member='MIROC5-r1i1p1'),mpilr,dss.sel(member='NorESM1-M-r1i1p1')],dim='member')
+        return ds_all
+    ## CMIP6 RCM by ensemble means (for normalization)
+    if choice == 'EM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        ds_all = xr.concat([dss.sel(member='CESM2-r11i1p1f1'),dss.sel(member='CMCC-CM2-SR5-r1i1p1f1'),
+        dss.sel(member='CNRM-ESM2-1-r1i1p1f2'),dss.sel(member='EC-Earth3-Veg-r1i1p1f1'),
+        dss.sel(member='IPSL-CM6A-LR-r1i1p1f1'),dss.sel(member='MIROC6-r1i1p1f1'),
+        dss.sel(member='MPI-ESM1-2-HR-r1i1p1f1'),dss.sel(member='NorESM2-MM-r1i1p1f1'),
+        dss.sel(member='UKESM1-0-LL-r1i1p1f2')],dim='member')
+        return ds_all
+    ## CMIP6 by spread
+    if choice == 'IM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-# CMIP5 by spread
-    if choice == 'IM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
-        mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region)
+    ## CMIP5 by spread
+    if choice == 'IM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region,spread_path)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-# CMIP5 RCM by spread
-    if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU']:
-        mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region)
+    ## CMIP6 RCM by spread (for normalization)
+    if choice == 'IM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        mem_out = csms.CMIP6_RCM_common_members
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
+    ## CMIP5 RCM by spread
+    if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
+    # ## CMIP5 RCM by spread (all)
+    # if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+    #     mem_out = csms.CMIP5_RCM_common_members
+    #     dss = dss.sel(member=mem_out)
+    #     return dss.sortby(dss.member)
 
 # normalize for spread
 def normalize_spread_component(ds):

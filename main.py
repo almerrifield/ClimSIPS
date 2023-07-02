@@ -18,15 +18,15 @@ def main():
     spread_path='/net/h2o/climphys/meranna/Data/predictors/spread/'
     indep_path='/net/h2o/climphys/meranna/Data/predictors/independence/'
     # ensemble and representation
-    cmip = 'CH202x'
+    cmip = 'CMIP5'
     im_or_em = 'IM'
-    season_region = 'DJF_CEU'
+    season_region = 'JJA_CEU'
     #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
-    dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region)
+    dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path)
     ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em, season_region)
-    dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region)
+    dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region,spread_path)
 
     # save output file
     outfile = 'perf_ind_spread_metrics.nc'
@@ -35,11 +35,11 @@ def main():
     # plot components
     csp.performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png")
     csp.independence_square(outfile,cmip,im_or_em,season_region,plotname="independence_metric.png")
-    csp.spread_scatter(outfile,cmip,im_or_em,season_region,plotname="spread_scatter.png")
+    csp.spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png")
 
 
     ############# INPUTS for subselection #############
-    m = 5 # number of models in the subset
+    m = 2 # number of models in the subset
     alpha = 10 # number of steps in alpha's [0,1] range
     beta = 10 # number of steps in alpha's [0,1] range
     perf_cutoff = 2 # performance threshold to pre-filter models (if desired)

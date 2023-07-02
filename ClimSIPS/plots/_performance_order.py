@@ -3,15 +3,8 @@
 #################################
 
 import xarray as xr
-import cartopy.crs as ccrs
 import numpy as np
 import matplotlib.pyplot as plt
-import regionmask
-
-import datetime
-from scipy import signal, stats
-from statsmodels.stats.weightstats import DescrStatsW
-import xskillscore
 
 __all__ = ["performance_order"]
 
@@ -20,7 +13,7 @@ def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         raise NotImplementedError(season_region)
 
     ################################################

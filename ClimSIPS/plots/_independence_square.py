@@ -4,15 +4,8 @@
 #################################
 
 import xarray as xr
-import cartopy.crs as ccrs
 import numpy as np
 import matplotlib.pyplot as plt
-import regionmask
-
-import datetime
-from scipy import signal, stats
-from statsmodels.stats.weightstats import DescrStatsW
-import xskillscore
 
 __all__ = ["independence_square"]
 
@@ -21,7 +14,7 @@ def independence_square(outfile,cmip,im_or_em,season_region,plotname="independen
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         raise NotImplementedError(season_region)
 
 
@@ -38,6 +31,7 @@ def independence_square(outfile,cmip,im_or_em,season_region,plotname="independen
         ind_order = [1,2,6,7,12,28,26,17,15,16,20,21,3,10,9,8,19,18,14,13,27,5,4,23,22,25]
     if cmip == 'CH202x':
         ind_order = [1,2,3,4,5,6,7,8]
+        # ind_order = [1,2,3,4,5,6,7,8,9,10,11]
 
     dsWi = dsWi.assign_coords({"fam_order": ("member", ind_order)})
     dsWi = dsWi.assign_coords({"fam_order_2": ("member_model", ind_order)})

@@ -27,6 +27,7 @@ or ClimSIPS_dev can be accessed with:
 ### Data
 The package imports performance, independence, and spread predictors. For the European case studies example, predictors are available here: 
 https://www.research-collection.ethz.ch/handle/20.500.11850/599312.
+* predictors for new cases (e.g., DJF_CEU, JJA_CH, and DJF_CH) will be made available upon request.
 
 ### Usage
 Metrics are computed from the predictors and formatted for use in the selection step. Metrics are plotted for user edification:
@@ -48,16 +49,19 @@ The current code allows the user to specify the following:
 - an option to run the selection step in parallel on multiple cores (max_workers)
 - option to output the minimum or the next to minimum of the cost function (min2)
 
-To run ClimSIPS, please pass the path to your predictors directory (see above) and set the following inputs in main.py:
+To run ClimSIPS, please pass the path to your predictors directory, e.g.:
+
+`python main.py /home/data/predictors/`
+
+and set the following inputs in main.py:
 
 ``` python
     ############# INPUTS for pre-processing #############
     # ensemble and representation
-    cmip = 'CMIP5' 
-    im_or_em = 'IM'
-    season_region = 'JJA_CEU'
+    cmip = 'CMIP5' # 'CMIP5' or 'CMIP6'
+    im_or_em = 'IM' # 'IM' individual member or 'EM' ensemble mean
+    season_region = 'JJA_CEU' # 'JJA_CEU' or 'DJF_NEU'
     #####################################################
-
 
     ############# INPUTS for subselection #############
     m = 2 # number of models in the subset

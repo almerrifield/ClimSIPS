@@ -19,15 +19,15 @@ def main():
         predictors_root = sys.argv[1]
     else:
         predictors_root = "/net/h2o/climphys/meranna/Data/predictors/"
-    
+
     # paths to predictors
     perf_path=predictors_root+'performance/'
     spread_path=predictors_root+'spread/'
     indep_path=predictors_root+'independence/'
     # ensemble and representation
-    cmip = 'CMIP5'
+    cmip = 'CH202x'
     im_or_em = 'IM'
-    season_region = 'JJA_CEU'
+    season_region = 'JJA_CH'
     #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics

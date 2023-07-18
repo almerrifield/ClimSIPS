@@ -33,6 +33,8 @@ def select_default_common_models(ds,CMIP):
         members = csms.CMIP6_RCM_common_members
     if CMIP == 'RCM':
         members = csms.RCM_common_members
+    if CMIP == 'RCM_CMIP6':
+        members = csms.RCM_common_members
     return ds.sel(member=members)
 
 # load performance predictors
@@ -66,10 +68,17 @@ def cos_lat_weighted_mean_xy(ds):
 
 # compute rmse between model and observations
 def compute_predictor_deltas(ds,ds_obs,key):
-    weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
-    weights = xr.concat(weights, "lon")
-    weights['lon'] = ds.lon
-    return xskillscore.rmse(ds[key],ds_obs[key],dim=['lat','lon'],weights=weights,skipna=True)
+    if np.ndim(ds.lat) == 1:
+        weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
+        weights = xr.concat(weights, "lon")
+        weights['lon'] = ds.lon
+        rmse = xskillscore.rmse(ds[key],ds_obs[key],dim=['lat','lon'],weights=weights,skipna=True)
+    if np.ndim(ds.lat) == 2:
+        coords=dict(x=("x", ds.x), y=("y", ds.y))
+        ds = ds.assign_coords(coords)
+        weights = np.cos(np.deg2rad(ds.lat))
+        rmse = xskillscore.rmse(ds[key],ds_obs[key],dim=['x','y'],weights=weights,skipna=True)
+    return rmse
 
 # normalize performance predictors
 def normalize_predictor_deltas(ds,ds_cat):
@@ -259,28 +268,77 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         dss.sel(member='UKESM1-0-LL-r1i1p1f2')],dim='member')
         return ds_all
 
-### Start here ###
-    # ## RCM by ensemble means
-    # if choice == 'EM' and CMIP == 'RCM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
-    #     mpilr = dss.sel(member=['MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1']).mean('member')
-    #     mpilr['member'] = 'MPI-ESM-LR-r0i0p0'
-    #     ecearth = dss.sel(member=['EC-EARTH-r12i1p1','EC-EARTH-r1i1p1']).mean('member')
-    #     ecearth['member'] = 'EC-EARTH-r0i0p0'
-    #     ds_all = xr.concat([dss.sel(member='CNRM-CM5-r1i1p1'),
-    #     dss.sel(member='CanESM2-r1i1p1'),ecearth,dss.sel(member='HadGEM2-ES-r1i1p1'),
-    #     dss.sel(member='IPSL-CM5A-MR-r1i1p1'),
-    #     dss.sel(member='MIROC5-r1i1p1'),mpilr,dss.sel(member='NorESM1-M-r1i1p1')],dim='member')
-    #     return ds_all
-    # ## CMIP6 RCM by ensemble means (for normalization)
-    # if choice == 'EM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-    #     ds_all = xr.concat([dss.sel(member='CESM2-r11i1p1f1'),dss.sel(member='CMCC-CM2-SR5-r1i1p1f1'),
-    #     dss.sel(member='CNRM-ESM2-1-r1i1p1f2'),dss.sel(member='EC-Earth3-Veg-r1i1p1f1'),
-    #     dss.sel(member='IPSL-CM6A-LR-r1i1p1f1'),dss.sel(member='MIROC6-r1i1p1f1'),
-    #     dss.sel(member='MPI-ESM1-2-HR-r1i1p1f1'),dss.sel(member='NorESM2-MM-r1i1p1f1'),
-    #     dss.sel(member='UKESM1-0-LL-r1i1p1f2')],dim='member')
-    #     return ds_all
-
-
+        []
+    ## RCM by ensemble means
+    if choice == 'EM' and CMIP == 'RCM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
+        cosmo_ec = dss.sel(member=['CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r12i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r1i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r3i1p1']).mean('member')
+        cosmo_ec['member'] = 'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r0i0p0'
+        cosmo_mpi = dss.sel(member=['CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r1i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r2i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r3i1p1']).mean('member')
+        cosmo_mpi['member'] = 'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r0i0p0'
+        dmi_ec = dss.sel(member=['DMI-HIRHAM5-EC-EARTH-r12i1p1', 'DMI-HIRHAM5-EC-EARTH-r1i1p1','DMI-HIRHAM5-EC-EARTH-r3i1p1']).mean('member')
+        dmi_ec['member'] = 'DMI-HIRHAM5-EC-EARTH-r0i0p0'
+        knmi_ec = dss.sel(member=['KNMI-RACMO22E-EC-EARTH-r12i1p1','KNMI-RACMO22E-EC-EARTH-r1i1p1', 'KNMI-RACMO22E-EC-EARTH-r3i1p1']).mean('member')
+        knmi_ec['member'] = 'KNMI-RACMO22E-EC-EARTH-r0i0p0'
+        mpi_mpi = dss.sel(member=['MPI-CSC-REMO2009-MPI-ESM-LR-r1i1p1','MPI-CSC-REMO2009-MPI-ESM-LR-r2i1p1']).mean('member')
+        mpi_mpi['member'] = 'MPI-CSC-REMO2009-MPI-ESM-LR-r0i0p0'
+        smhi_ec = dss.sel(member=['SMHI-RCA4-EC-EARTH-r12i1p1','SMHI-RCA4-EC-EARTH-r1i1p1', 'SMHI-RCA4-EC-EARTH-r3i1p1']).mean('member')
+        smhi_ec['member'] = 'SMHI-RCA4-EC-EARTH-r0i0p0'
+        smhi_mpi = dss.sel(member=['SMHI-RCA4-MPI-ESM-LR-r1i1p1', 'SMHI-RCA4-MPI-ESM-LR-r2i1p1','SMHI-RCA4-MPI-ESM-LR-r3i1p1']).mean('member')
+        smhi_mpi['member'] = 'SMHI-RCA4-MPI-ESM-LR-r0i0p0'
+        ds_all = xr.concat([dss.sel(member='CLMcom-CCLM4-8-17-CanESM2-r1i1p1'),dss.sel(member='CLMcom-CCLM4-8-17-EC-EARTH-r12i1p1'),dss.sel(member='CLMcom-CCLM4-8-17-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='CLMcom-CCLM4-8-17-MIROC5-r1i1p1'),dss.sel(member='CLMcom-CCLM4-8-17-MPI-ESM-LR-r1i1p1'),dss.sel(member='CLMcom-ETH-COSMO-crCLIM-v1-1-CNRM-CM5-r1i1p1'),
+        cosmo_ec, cosmo_mpi,dss.sel(member='CLMcom-ETH-COSMO-crCLIM-v1-1-NorESM1-M-r1i1p1'),dss.sel(member='CNRM-ALADIN63-CNRM-CM5-r1i1p1'),
+        dss.sel(member='CNRM-ALADIN63-HadGEM2-ES-r1i1p1'),dss.sel(member='CNRM-ALADIN63-MPI-ESM-LR-r1i1p1'),dss.sel(member='CNRM-ALADIN63-NorESM1-M-r1i1p1'),
+        dss.sel(member='DMI-HIRHAM5-CNRM-CM5-r1i1p1'),dmi_ec,dss.sel(member='DMI-HIRHAM5-HadGEM2-ES-r1i1p1'),dss.sel(member='DMI-HIRHAM5-IPSL-CM5A-MR-r1i1p1'),
+        dss.sel(member='DMI-HIRHAM5-MPI-ESM-LR-r1i1p1'),dss.sel(member='DMI-HIRHAM5-NorESM1-M-r1i1p1'), dss.sel(member='GERICS-REMO2015-CNRM-CM5-r1i1p1'),
+        dss.sel(member='GERICS-REMO2015-CanESM2-r1i1p1'),dss.sel(member='GERICS-REMO2015-EC-EARTH-r12i1p1'),dss.sel(member='GERICS-REMO2015-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='GERICS-REMO2015-IPSL-CM5A-MR-r1i1p1'),dss.sel(member='GERICS-REMO2015-MIROC5-r1i1p1'),dss.sel(member='GERICS-REMO2015-MPI-ESM-LR-r3i1p1'),
+        dss.sel(member='GERICS-REMO2015-NorESM1-M-r1i1p1'),dss.sel(member='ICTP-RegCM4-6-CNRM-CM5-r1i1p1'), dss.sel(member='ICTP-RegCM4-6-EC-EARTH-r12i1p1'),
+        dss.sel(member='ICTP-RegCM4-6-HadGEM2-ES-r1i1p1'),dss.sel(member='ICTP-RegCM4-6-MPI-ESM-LR-r1i1p1'),dss.sel(member='ICTP-RegCM4-6-NorESM1-M-r1i1p1'),
+        dss.sel(member='IPSL-WRF381P-CNRM-CM5-r1i1p1'),dss.sel(member='IPSL-WRF381P-EC-EARTH-r12i1p1'), dss.sel(member='IPSL-WRF381P-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='IPSL-WRF381P-IPSL-CM5A-MR-r1i1p1'),dss.sel(member='IPSL-WRF381P-MPI-ESM-LR-r1i1p1'), dss.sel(member='IPSL-WRF381P-NorESM1-M-r1i1p1'),
+        dss.sel(member='KNMI-RACMO22E-CNRM-CM5-r1i1p1'),knmi_ec,dss.sel(member='KNMI-RACMO22E-HadGEM2-ES-r1i1p1'),dss.sel(member='KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1'),
+        dss.sel(member='KNMI-RACMO22E-MPI-ESM-LR-r1i1p1'),dss.sel(member='KNMI-RACMO22E-NorESM1-M-r1i1p1'),dss.sel(member='MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1'),
+        dss.sel(member='MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1'),dss.sel(member='MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1'),dss.sel(member='MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1'),
+        dss.sel(member='MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1'),mpi_mpi,smhi_ec,dss.sel(member='SMHI-RCA4-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='SMHI-RCA4-IPSL-CM5A-MR-r1i1p1'),smhi_mpi,dss.sel(member='SMHI-RCA4-NorESM1-M-r1i1p1'),dss.sel(member='UHOH-WRF361H-EC-EARTH-r1i1p1'),
+        dss.sel(member='UHOH-WRF361H-HadGEM2-ES-r1i1p1'),dss.sel(member='UHOH-WRF361H-MIROC5-r1i1p1'), dss.sel(member='UHOH-WRF361H-MPI-ESM-LR-r1i1p1')],dim='member')
+        return ds_all
+    ## RCM by ensemble means (for normalization, currently a patch)
+    if choice == 'EM' and CMIP == 'RCM_CMIP6' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
+        cosmo_ec = dss.sel(member=['CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r12i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r1i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r3i1p1']).mean('member')
+        cosmo_ec['member'] = 'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r0i0p0'
+        cosmo_mpi = dss.sel(member=['CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r1i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r2i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r3i1p1']).mean('member')
+        cosmo_mpi['member'] = 'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r0i0p0'
+        dmi_ec = dss.sel(member=['DMI-HIRHAM5-EC-EARTH-r12i1p1', 'DMI-HIRHAM5-EC-EARTH-r1i1p1','DMI-HIRHAM5-EC-EARTH-r3i1p1']).mean('member')
+        dmi_ec['member'] = 'DMI-HIRHAM5-EC-EARTH-r0i0p0'
+        knmi_ec = dss.sel(member=['KNMI-RACMO22E-EC-EARTH-r12i1p1','KNMI-RACMO22E-EC-EARTH-r1i1p1', 'KNMI-RACMO22E-EC-EARTH-r3i1p1']).mean('member')
+        knmi_ec['member'] = 'KNMI-RACMO22E-EC-EARTH-r0i0p0'
+        mpi_mpi = dss.sel(member=['MPI-CSC-REMO2009-MPI-ESM-LR-r1i1p1','MPI-CSC-REMO2009-MPI-ESM-LR-r2i1p1']).mean('member')
+        mpi_mpi['member'] = 'MPI-CSC-REMO2009-MPI-ESM-LR-r0i0p0'
+        smhi_ec = dss.sel(member=['SMHI-RCA4-EC-EARTH-r12i1p1','SMHI-RCA4-EC-EARTH-r1i1p1', 'SMHI-RCA4-EC-EARTH-r3i1p1']).mean('member')
+        smhi_ec['member'] = 'SMHI-RCA4-EC-EARTH-r0i0p0'
+        smhi_mpi = dss.sel(member=['SMHI-RCA4-MPI-ESM-LR-r1i1p1', 'SMHI-RCA4-MPI-ESM-LR-r2i1p1','SMHI-RCA4-MPI-ESM-LR-r3i1p1']).mean('member')
+        smhi_mpi['member'] = 'SMHI-RCA4-MPI-ESM-LR-r0i0p0'
+        ds_all = xr.concat([dss.sel(member='CLMcom-CCLM4-8-17-CanESM2-r1i1p1'),dss.sel(member='CLMcom-CCLM4-8-17-EC-EARTH-r12i1p1'),dss.sel(member='CLMcom-CCLM4-8-17-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='CLMcom-CCLM4-8-17-MIROC5-r1i1p1'),dss.sel(member='CLMcom-CCLM4-8-17-MPI-ESM-LR-r1i1p1'),dss.sel(member='CLMcom-ETH-COSMO-crCLIM-v1-1-CNRM-CM5-r1i1p1'),
+        cosmo_ec, cosmo_mpi,dss.sel(member='CLMcom-ETH-COSMO-crCLIM-v1-1-NorESM1-M-r1i1p1'),dss.sel(member='CNRM-ALADIN63-CNRM-CM5-r1i1p1'),
+        dss.sel(member='CNRM-ALADIN63-HadGEM2-ES-r1i1p1'),dss.sel(member='CNRM-ALADIN63-MPI-ESM-LR-r1i1p1'),dss.sel(member='CNRM-ALADIN63-NorESM1-M-r1i1p1'),
+        dss.sel(member='DMI-HIRHAM5-CNRM-CM5-r1i1p1'),dmi_ec,dss.sel(member='DMI-HIRHAM5-HadGEM2-ES-r1i1p1'),dss.sel(member='DMI-HIRHAM5-IPSL-CM5A-MR-r1i1p1'),
+        dss.sel(member='DMI-HIRHAM5-MPI-ESM-LR-r1i1p1'),dss.sel(member='DMI-HIRHAM5-NorESM1-M-r1i1p1'), dss.sel(member='GERICS-REMO2015-CNRM-CM5-r1i1p1'),
+        dss.sel(member='GERICS-REMO2015-CanESM2-r1i1p1'),dss.sel(member='GERICS-REMO2015-EC-EARTH-r12i1p1'),dss.sel(member='GERICS-REMO2015-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='GERICS-REMO2015-IPSL-CM5A-MR-r1i1p1'),dss.sel(member='GERICS-REMO2015-MIROC5-r1i1p1'),dss.sel(member='GERICS-REMO2015-MPI-ESM-LR-r3i1p1'),
+        dss.sel(member='GERICS-REMO2015-NorESM1-M-r1i1p1'),dss.sel(member='ICTP-RegCM4-6-CNRM-CM5-r1i1p1'), dss.sel(member='ICTP-RegCM4-6-EC-EARTH-r12i1p1'),
+        dss.sel(member='ICTP-RegCM4-6-HadGEM2-ES-r1i1p1'),dss.sel(member='ICTP-RegCM4-6-MPI-ESM-LR-r1i1p1'),dss.sel(member='ICTP-RegCM4-6-NorESM1-M-r1i1p1'),
+        dss.sel(member='IPSL-WRF381P-CNRM-CM5-r1i1p1'),dss.sel(member='IPSL-WRF381P-EC-EARTH-r12i1p1'), dss.sel(member='IPSL-WRF381P-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='IPSL-WRF381P-IPSL-CM5A-MR-r1i1p1'),dss.sel(member='IPSL-WRF381P-MPI-ESM-LR-r1i1p1'), dss.sel(member='IPSL-WRF381P-NorESM1-M-r1i1p1'),
+        dss.sel(member='KNMI-RACMO22E-CNRM-CM5-r1i1p1'),knmi_ec,dss.sel(member='KNMI-RACMO22E-HadGEM2-ES-r1i1p1'),dss.sel(member='KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1'),
+        dss.sel(member='KNMI-RACMO22E-MPI-ESM-LR-r1i1p1'),dss.sel(member='KNMI-RACMO22E-NorESM1-M-r1i1p1'),dss.sel(member='MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1'),
+        dss.sel(member='MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1'),dss.sel(member='MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1'),dss.sel(member='MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1'),
+        dss.sel(member='MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1'),mpi_mpi,smhi_ec,dss.sel(member='SMHI-RCA4-HadGEM2-ES-r1i1p1'),
+        dss.sel(member='SMHI-RCA4-IPSL-CM5A-MR-r1i1p1'),smhi_mpi,dss.sel(member='SMHI-RCA4-NorESM1-M-r1i1p1'),dss.sel(member='UHOH-WRF361H-EC-EARTH-r1i1p1'),
+        dss.sel(member='UHOH-WRF361H-HadGEM2-ES-r1i1p1'),dss.sel(member='UHOH-WRF361H-MIROC5-r1i1p1'), dss.sel(member='UHOH-WRF361H-MPI-ESM-LR-r1i1p1')],dim='member')
+        return ds_all
     ## CMIP6 by spread
     if choice == 'IM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
@@ -301,11 +359,16 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-    # ## CMIP5 RCM by spread (all)
-    # if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-    #     mem_out = csms.CMIP5_RCM_common_members
-    #     dss = dss.sel(member=mem_out)
-    #     return dss.sortby(dss.member)
+    ## RCM by spread (for normalization, current patch)
+    if choice == 'IM' and CMIP == 'RCM_CMIP6' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
+        mem_out = csms.RCM_spread_maximizing_members(csms.RCM_common_members,season_region,spread_path)
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
+    ## RCM by spread
+    if choice == 'IM' and CMIP == 'RCM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
+        mem_out = csms.RCM_spread_maximizing_members(csms.RCM_common_members,season_region,spread_path)
+        dss = dss.sel(member=mem_out)
+        return dss.sortby(dss.member)
 
 # normalize for spread
 def normalize_spread_component(ds):
@@ -326,17 +389,25 @@ def get_squared_diff(ds):
 
 # compute independence matrix
 def get_error(ds):
-    weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
-    weights = xr.concat(weights, "lon")
-    weights['lon'] = ds.lon
+    if np.ndim(ds.lat) == 1:
+        weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
+        weights = xr.concat(weights, "lon")
+        weights['lon'] = ds.lon
+    if np.ndim(ds.lat) == 2:
+        coords=dict(x=("x", ds.x), y=("y", ds.y))
+        ds = ds.assign_coords(coords)
+        weights = np.cos(np.deg2rad(ds.lat))
     mod_coords = ds.member.values
     nmod = len(mod_coords)
     res = xr.DataArray(np.empty(shape=(nmod, nmod)),
                         dims=("member", "member_model"), coords=dict(member=mod_coords, member_model=mod_coords))
 
-    for mod1 in ds.transpose("member", ...):
-        for mod2 in ds.transpose("member", ...):
-            a = xskillscore.rmse(mod1,mod2,dim=['lat','lon'],weights=weights,skipna=True)
+    for mod1 in ds.transpose("member", ..., transpose_coords=False):
+        for mod2 in ds.transpose("member", ..., transpose_coords=False):
+            if np.ndim(ds.lat) == 1:
+                a = xskillscore.rmse(mod1,mod2,dim=['lat','lon'],weights=weights,skipna=True)
+            if np.ndim(ds.lat) == 2:
+                a = xskillscore.rmse(mod1,mod2,dim=['x','y'],weights=weights,skipna=True)
             res.loc[dict(member=mod1.member, member_model=mod2.member)] = a
 
     return res.where(res!=0)

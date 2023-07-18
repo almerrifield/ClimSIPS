@@ -9,12 +9,13 @@ import matplotlib.pyplot as plt
 __all__ = ["performance_order"]
 
 def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png"):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH','JJA_ALPS','DJF_ALPS']:
         raise NotImplementedError(season_region)
+
 
     ################################################
     fig = plt.figure(figsize=(8,4))

@@ -12,11 +12,11 @@ from .. import member_selection as csms
 __all__ = ["spread_scatter"]
 
 def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png"):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH','JJA_ALPS','DJF_ALPS']:
         raise NotImplementedError(season_region)
 
     # ################################################
@@ -80,6 +80,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
         'NorESM2-MM-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='d',alpha=1),
         'TaiESM1-r1i1p1f1': dict(c='darkgoldenrod',s=30,marker='+',alpha=1),
         'UKESM1-0-LL-r1i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # end CMIP6 IM
+        ##############################
         'UKESM1-0-LL-r2i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # DJF case
         'UKESM1-0-LL-r3i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # DJF CEU case
         'ACCESS-CM2-r0i0p0f0': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP6 EM
@@ -116,6 +117,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
         'NorESM2-MM-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='d',alpha=1),
         'TaiESM1-r1i1p1f1': dict(c='darkgoldenrod',s=30,marker='+',alpha=1),
         'UKESM1-0-LL-r0i0p0f0': dict(c='tab:red',s=20,marker='d',alpha=1), # end CMIP6 EM
+        ##############################
         'ACCESS1-0-r1i1p1': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP5 IM
         'ACCESS1-3-r1i1p1': dict(c='tab:red',s=20,marker='o',alpha=1),
         'CCSM4-r6i1p1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1),
@@ -168,6 +170,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
         'EC-EARTH-r1i1p1': dict(c='darkgreen',s=20,marker='x',alpha=1), # end CMIP5 IM
         'EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='o',alpha=1), # JJA_CH
         'EC-EARTH-r0i0p0': dict(c='darkgreen',s=20,marker='x',alpha=1),
+        ##############################
         'ACCESS1-0-r1i1p1': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP5 EM
         'ACCESS1-3-r1i1p1': dict(c='tab:red',s=20,marker='o',alpha=1),
         'CCSM4-r0i0p0': dict(c='darkgoldenrod',s=20,marker='x',alpha=1),
@@ -193,12 +196,112 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
         'NorESM1-ME-r1i1p1': dict(c='darkgoldenrod',s=30,marker='*',alpha=1),
         'bcc-csm1-1-m-r1i1p1': dict(c='silver',s=20,marker='x',alpha=1),
         'bcc-csm1-1-r1i1p1': dict(c='silver',s=20,marker='o',alpha=1),
-        'inmcm4-r1i1p1': dict(c='mediumseagreen',s=20,marker='x',alpha=1) # end CMIP5 EM
-    }
+        'inmcm4-r1i1p1': dict(c='mediumseagreen',s=20,marker='x',alpha=1), # end CMIP5 EM
+        ##############################
+        'CLMcom-CCLM4-8-17-CanESM2-r1i1p1': dict(c='dodgerblue',s=20,marker='x',alpha=1),
+        'CLMcom-CCLM4-8-17-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='x',alpha=1),
+        'CLMcom-CCLM4-8-17-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='x',alpha=1),
+        'CLMcom-CCLM4-8-17-MIROC5-r1i1p1': dict(c='tab:purple',s=20,marker='x',alpha=1),
+        'CLMcom-CCLM4-8-17-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='x',alpha=1),
+        'CLMcom-CCLM4-8-17-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='x',alpha=1),
+        ##############################
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-CNRM-CM5-r1i1p1': dict(c='m',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r12i1p1': dict(c='darkgreen',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r1i1p1': dict(c='darkgreen',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r3i1p1': dict(c='darkgreen',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r2i1p1': dict(c='tab:orange',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r3i1p1': dict(c='tab:orange',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=30,marker='+',alpha=1),
+        ##############################
+        'CNRM-ALADIN63-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='o',alpha=1),
+        'CNRM-ALADIN63-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='o',alpha=1),
+        'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='o',alpha=1),
+        'CNRM-ALADIN63-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1),
+        ##############################
+        'DMI-HIRHAM5-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-EC-EARTH-r1i1p1': dict(c='darkgreen',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-EC-EARTH-r3i1p1': dict(c='darkgreen',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='^',alpha=1),
+        'DMI-HIRHAM5-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='^',alpha=1),
+        ##############################
+        'GERICS-REMO2015-CanESM2-r1i1p1': dict(c='dodgerblue',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-MIROC5-r1i1p1': dict(c='tab:purple',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-MPI-ESM-LR-r3i1p1': dict(c='tab:orange',s=20,marker='*',alpha=1),
+        'GERICS-REMO2015-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='*',alpha=1),
+        ##############################
+        'ICTP-RegCM4-6-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='s',alpha=1), ## new
+        'ICTP-RegCM4-6-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='s',alpha=1),
+        'ICTP-RegCM4-6-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='s',alpha=1),  ## new
+        'ICTP-RegCM4-6-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='s',alpha=1),  ## new
+        'ICTP-RegCM4-6-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='s',alpha=1),
+        ##############################
+        'IPSL-INERIS-WRF331F-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='d',alpha=1),
+        ##############################
+        'IPSL-WRF381P-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='p',alpha=1),
+        'IPSL-WRF381P-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='p',alpha=1),
+        'IPSL-WRF381P-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='p',alpha=1),
+        'IPSL-WRF381P-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='p',alpha=1), ## old
+        'IPSL-WRF381P-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='p',alpha=1),
+        'IPSL-WRF381P-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='p',alpha=1),
+        ##############################
+        'KNMI-RACMO22E-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-EC-EARTH-r1i1p1': dict(c='darkgreen',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-EC-EARTH-r3i1p1': dict(c='darkgreen',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='v',alpha=1),
+        'KNMI-RACMO22E-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='v',alpha=1),
+        ##############################
+        'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='D',alpha=1),
+        'MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='D',alpha=1),
+        'MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='D',alpha=1),
+        'MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='D',alpha=1),
+        'MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='D',alpha=1),
+        ##############################
+        'MPI-CSC-REMO2009-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='_',alpha=1),
+        'MPI-CSC-REMO2009-MPI-ESM-LR-r2i1p1': dict(c='tab:orange',s=20,marker='_',alpha=1),
+        ##############################
+        'RMIB-UGent-ALARO-0-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='|',alpha=1),
+        ##############################
+        'SMHI-RCA4-CNRM-CM5-r1i1p1': dict(c='m',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-EC-EARTH-r12i1p1': dict(c='darkgreen',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-EC-EARTH-r1i1p1': dict(c='darkgreen',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-EC-EARTH-r3i1p1': dict(c='darkgreen',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-MPI-ESM-LR-r2i1p1': dict(c='tab:orange',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-MPI-ESM-LR-r3i1p1': dict(c='tab:orange',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-NorESM1-M-r1i1p1': dict(c='darkgoldenrod',s=20,marker='1',alpha=1),
+        ##############################
+        'UHOH-WRF361H-EC-EARTH-r1i1p1': dict(c='darkgreen',s=20,marker='>',alpha=1),
+        'UHOH-WRF361H-MIROC5-r1i1p1': dict(c='tab:purple',s=20,marker='>',alpha=1),
+        'UHOH-WRF361H-HadGEM2-ES-r1i1p1': dict(c='tab:red',s=20,marker='>',alpha=1),
+        'UHOH-WRF361H-MPI-ESM-LR-r1i1p1': dict(c='tab:orange',s=20,marker='>',alpha=1),
+        ##############################
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r0i0p0': dict(c='darkgreen',s=30,marker='+',alpha=1),
+        'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r0i0p0': dict(c='tab:orange',s=30,marker='+',alpha=1),
+        'DMI-HIRHAM5-EC-EARTH-r0i0p0': dict(c='darkgreen',s=20,marker='^',alpha=1),
+        'IPSL-INERIS-WRF331F-IPSL-CM5A-MR-r1i1p1': dict(c='royalblue',s=20,marker='d',alpha=1),
+        'KNMI-RACMO22E-EC-EARTH-r0i0p0': dict(c='darkgreen',s=20,marker='v',alpha=1),
+        'MPI-CSC-REMO2009-MPI-ESM-LR-r0i0p0': dict(c='tab:orange',s=20,marker='_',alpha=1),
+        'SMHI-RCA4-EC-EARTH-r0i0p0': dict(c='darkgreen',s=20,marker='1',alpha=1),
+        'SMHI-RCA4-MPI-ESM-LR-r0i0p0': dict(c='tab:orange',s=20,marker='1',alpha=1),
+        }
 
 
     if cmip == 'CMIP6' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models =  csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
+        period = '2041/2060 - 1995/2014'
     if cmip == 'CMIP6' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models = ['ACCESS-CM2-r0i0p0f0', 'ACCESS-ESM1-5-r0i0p0f0',
             'AWI-CM-1-1-MR-r1i1p1f1', 'CAS-ESM2-0-r0i0p0f0', 'CESM2-WACCM-r0i0p0f0',
@@ -212,8 +315,10 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
             'MIROC-ES2L-r0i0p0f0', 'MIROC6-r0i0p0f0', 'MPI-ESM1-2-HR-r0i0p0f0',
             'MPI-ESM1-2-LR-r0i0p0f0', 'MRI-ESM2-0-r0i0p0f0', 'NESM3-r0i0p0f0',
             'NorESM2-MM-r1i1p1f1', 'TaiESM1-r1i1p1f1', 'UKESM1-0-LL-r0i0p0f0']
+        period = '2041/2060 - 1995/2014'
     if cmip == 'CMIP5' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models =  csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region,spread_path)
+        period = '2041/2060 - 1995/2014'
     if cmip == 'CMIP5' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'CCSM4-r0i0p0',
             'CESM1-CAM5-r0i0p0', 'CNRM-CM5-r0i0p0', 'CSIRO-Mk3-6-0-r0i0p0',
@@ -224,24 +329,42 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
             'MPI-ESM-LR-r0i0p0', 'MPI-ESM-MR-r1i1p1', 'MRI-CGCM3-r1i1p1',
             'NorESM1-M-r1i1p1', 'NorESM1-ME-r1i1p1', 'bcc-csm1-1-m-r1i1p1',
             'bcc-csm1-1-r1i1p1', 'inmcm4-r1i1p1']
+        period = '2041/2060 - 1995/2014'
     if cmip == 'CH202x' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models =  csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
-    # if cmip == 'CH202x' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-    #     models =  csms.CMIP5_RCM_common_members
+        period = '2071/2099 - 1981/2010'
     if cmip == 'CH202x' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r0i0p0','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
         'MPI-ESM-LR-r0i0p0','NorESM1-M-r1i1p1']
+        period = '2071/2099 - 1981/2010'
+    if cmip == 'RCM' and im_or_em == 'IM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
+        models =  csms.RCM_spread_maximizing_members(csms.RCM_common_members,season_region,spread_path)
+        period = '2071/2099 - 1981/2010'
+    if cmip == 'RCM' and im_or_em == 'EM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
+        models = ['CLMcom-CCLM4-8-17-CanESM2-r1i1p1', 'CLMcom-CCLM4-8-17-EC-EARTH-r12i1p1', 'CLMcom-CCLM4-8-17-HadGEM2-ES-r1i1p1', 'CLMcom-CCLM4-8-17-MIROC5-r1i1p1',
+                     'CLMcom-CCLM4-8-17-MPI-ESM-LR-r1i1p1', 'CLMcom-ETH-COSMO-crCLIM-v1-1-CNRM-CM5-r1i1p1', 'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r0i0p0', 'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r0i0p0',
+                     'CLMcom-ETH-COSMO-crCLIM-v1-1-NorESM1-M-r1i1p1', 'CNRM-ALADIN63-CNRM-CM5-r1i1p1', 'CNRM-ALADIN63-HadGEM2-ES-r1i1p1', 'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1', 'CNRM-ALADIN63-NorESM1-M-r1i1p1',
+                     'DMI-HIRHAM5-CNRM-CM5-r1i1p1', 'DMI-HIRHAM5-EC-EARTH-r0i0p0', 'DMI-HIRHAM5-HadGEM2-ES-r1i1p1', 'DMI-HIRHAM5-IPSL-CM5A-MR-r1i1p1','DMI-HIRHAM5-MPI-ESM-LR-r1i1p1', 'DMI-HIRHAM5-NorESM1-M-r1i1p1',
+                     'GERICS-REMO2015-CNRM-CM5-r1i1p1', 'GERICS-REMO2015-CanESM2-r1i1p1','GERICS-REMO2015-EC-EARTH-r12i1p1', 'GERICS-REMO2015-HadGEM2-ES-r1i1p1','GERICS-REMO2015-IPSL-CM5A-MR-r1i1p1',
+                     'GERICS-REMO2015-MIROC5-r1i1p1','GERICS-REMO2015-MPI-ESM-LR-r3i1p1', 'GERICS-REMO2015-NorESM1-M-r1i1p1','ICTP-RegCM4-6-CNRM-CM5-r1i1p1', 'ICTP-RegCM4-6-EC-EARTH-r12i1p1',
+                     'ICTP-RegCM4-6-HadGEM2-ES-r1i1p1', 'ICTP-RegCM4-6-MPI-ESM-LR-r1i1p1', 'ICTP-RegCM4-6-NorESM1-M-r1i1p1', 'IPSL-WRF381P-CNRM-CM5-r1i1p1','IPSL-WRF381P-EC-EARTH-r12i1p1',
+                     'IPSL-WRF381P-HadGEM2-ES-r1i1p1','IPSL-WRF381P-IPSL-CM5A-MR-r1i1p1', 'IPSL-WRF381P-MPI-ESM-LR-r1i1p1','IPSL-WRF381P-NorESM1-M-r1i1p1', 'KNMI-RACMO22E-CNRM-CM5-r1i1p1',
+                     'KNMI-RACMO22E-EC-EARTH-r0i0p0', 'KNMI-RACMO22E-HadGEM2-ES-r1i1p1','KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1', 'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1','KNMI-RACMO22E-NorESM1-M-r1i1p1',
+                     'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1','MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1','MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1','MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1','MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1',
+                     'MPI-CSC-REMO2009-MPI-ESM-LR-r0i0p0', 'SMHI-RCA4-EC-EARTH-r0i0p0','SMHI-RCA4-HadGEM2-ES-r1i1p1', 'SMHI-RCA4-IPSL-CM5A-MR-r1i1p1','SMHI-RCA4-MPI-ESM-LR-r0i0p0', 'SMHI-RCA4-NorESM1-M-r1i1p1',
+                     'UHOH-WRF361H-EC-EARTH-r1i1p1', 'UHOH-WRF361H-HadGEM2-ES-r1i1p1','UHOH-WRF361H-MIROC5-r1i1p1', 'UHOH-WRF361H-MPI-ESM-LR-r1i1p1']
+        period = '2071/2099 - 1981/2010'
 
     # plot quadrant boundries (medians)
     plt.axvline(dsWi['tas_change'].median("member"),color='k',linewidth=1,linestyle='dashed',alpha=0.2)
     plt.axhline(dsWi['pr_change'].median("member"),color='k',linewidth=1,linestyle='dashed',alpha=0.2)
     for md in models:
         plt.scatter(dsWi['tas_change'].sel(member=md),dsWi['pr_change'].sel(member=md),**plot_kwargs[md],label=md)
-    plt.xlabel('Target SAT Change (˚C)')
+    plt.xlabel('Target SAT Change, '+period+' (˚C)')
     min_sat = np.min(dsWi['tas_change'])
     max_sat = np.max(dsWi['tas_change'])
     plt.xlim([min_sat-0.5,max_sat+0.5])
-    plt.ylabel('Target PR Change (mm/day)')
+    plt.ylabel('Target PR Change, '+period+' (mm/day)')
     min_pr = np.min(dsWi['pr_change'])
     max_pr = np.max(dsWi['pr_change'])
     plt.ylim([min_pr-0.5,max_pr+0.5])

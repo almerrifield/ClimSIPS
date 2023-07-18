@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 __all__ = ["independence_square"]
 
 def independence_square(outfile,cmip,im_or_em,season_region,plotname="independence_metric.png"):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH','JJA_ALPS','DJF_ALPS']:
         raise NotImplementedError(season_region)
 
 
@@ -30,8 +30,9 @@ def independence_square(outfile,cmip,im_or_em,season_region,plotname="independen
     if cmip == 'CMIP5':
         ind_order = [1,2,6,7,12,28,26,17,15,16,20,21,3,10,9,8,19,18,14,13,27,5,4,23,22,25]
     if cmip == 'CH202x':
-        ind_order = [1,2,3,4,5,6,7,8]
-        # ind_order = [1,2,3,4,5,6,7,8,9,10,11]
+        ind_order = np.arange(1,9)
+    if cmip == 'RCM':
+        ind_order = np.arange(1,60)
 
     dsWi = dsWi.assign_coords({"fam_order": ("member", ind_order)})
     dsWi = dsWi.assign_coords({"fam_order_2": ("member_model", ind_order)})

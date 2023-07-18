@@ -15,10 +15,13 @@ def pre_process_perf(path, cmip, im_or_em, season_region, spread_path):
     if cmip == 'CH202x':
         deltas_5 = pre_process_perf_load_delta(path, 'CH202x', season_region)
         deltas_6 = pre_process_perf_load_delta(path, 'CH202x_CMIP6', season_region)
+    if cmip == 'RCM':
+        deltas_5 = pre_process_perf_load_delta(path, 'RCM', season_region)
+        deltas_6 = pre_process_perf_load_delta(path, 'RCM_CMIP6', season_region)
     return pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region,spread_path)
 
 def pre_process_perf_load_delta(path, cmip, season_region):
-    if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM','RCM_CMIP6']:
         raise NotImplementedError(cmip)
 
     # CMIP5 and CMIP6 predictors
@@ -404,6 +407,116 @@ def pre_process_perf_load_delta(path, cmip, season_region):
 
 #################################################################
 
+    ## RCM JJA ALPS
+    if cmip == 'RCM' and season_region == 'JJA_ALPS':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_alps_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_alps_jja_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_jja_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_jja_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_jja_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_jja_base_delta = csf.compute_predictor_deltas(dsPr_jja_base,dsProbs_jja_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_jja_base_delta]
+
+    ## RCM JJA CH
+    if cmip == 'RCM' and season_region == 'JJA_CH':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_ch_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_ch_jja_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_jja_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_jja_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_jja_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_jja_base_delta = csf.compute_predictor_deltas(dsPr_jja_base,dsProbs_jja_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_jja_base_delta]
+
+    ## RCM DJF ALPS
+    if cmip == 'RCM' and season_region == 'DJF_ALPS':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_alps_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_alps_djf_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_djf_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_djf_base_delta]
+
+    ## RCM DJF CH
+    if cmip == 'RCM' and season_region == 'DJF_CH':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_ch_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_ch_djf_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_djf_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_djf_base_delta]
+
+#################################################################
+
     ## CMIP6 JJA CEU
     if cmip == 'CMIP6' and season_region == 'JJA_CEU':
         SST_fn = 'tos_mon_CMIP6_hist_g025_NAWH_ann_1995-2014_mean.nc'
@@ -781,9 +894,120 @@ def pre_process_perf_load_delta(path, cmip, season_region):
 
         return [dsSST_ann_base_delta, dsT_ann_base_delta, dsSLP_djf_base_delta, dsPr_djf_base_delta]
 
+#################################################################
+
+    ## RCM_CMIP6 JJA ALPS (patch)
+    if cmip == 'RCM_CMIP6' and season_region == 'JJA_ALPS':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_alps_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_alps_jja_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_jja_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_jja_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_jja_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_jja_base_delta = csf.compute_predictor_deltas(dsPr_jja_base,dsProbs_jja_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_jja_base_delta]
+
+    ## RCM_CMIP6 JJA CH (patch)
+    if cmip == 'RCM_CMIP6' and season_region == 'JJA_CH':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_ch_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_ch_jja_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_jja_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_jja_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_jja_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_jja_base_delta = csf.compute_predictor_deltas(dsPr_jja_base,dsProbs_jja_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_jja_base_delta]
+
+    ## RCM_CMIP6 DJF ALPS (patch)
+    if cmip == 'RCM_CMIP6' and season_region == 'DJF_ALPS':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_alps_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_alps_djf_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_alps_djf_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_djf_base_delta]
+
+    ## RCM_CMIP6 DJF CH (patch)
+    if cmip == 'RCM_CMIP6' and season_region == 'DJF_CH':
+        T_base_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_ch_ann_1971-1980_mean.nc'
+        T_diff_fn = 'tas_mon_EUR-11_rcp85_CH202X_grid_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Pr_fn = 'pr_mon_EUR-11_rcp85_CH202X_grid_mask_ch_djf_1971-2020_mean.nc'
+
+        # load, filter for common models
+        dsT_ann_base = csf.load_models(path,T_base_fn,cmip,default_models=True)
+        dsT_ann_diff = csf.load_models(path,T_diff_fn,cmip,default_models=True)
+        dsPr_djf_base = csf.load_models(path,Pr_fn,cmip,default_models=True)
+
+        # load observations
+        Tobs_base_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_1971-1980_mean.nc'
+        Tobs_diff_fn = 'tas_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_ann_2011-2020_1971-1980_diff.nc'
+        Probs_fn = 'pr_mon_0.11deg_rot_v23.1e_remapnn_mask_ch_djf_1971-2020_mean.nc'
+
+        dsTobs_ann_base = csf.load_observations(path,Tobs_base_fn)
+        dsTobs_ann_diff = csf.load_observations(path,Tobs_diff_fn)
+        dsProbs_djf_base = csf.load_observations(path,Probs_fn)
+
+        # compute predictor-obs RMSEs
+        dsT_ann_base_delta = csf.compute_predictor_deltas(dsT_ann_base,dsTobs_ann_base,'tas')
+        dsT_ann_diff_delta = csf.compute_predictor_deltas(dsT_ann_diff,dsTobs_ann_diff,'tas')
+        dsPr_djf_base_delta = csf.compute_predictor_deltas(dsPr_djf_base,dsProbs_djf_base,'pr')
+
+        return [dsT_ann_base_delta, dsT_ann_diff_delta, dsPr_djf_base_delta]
+
+#################################################################
 
 def pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region, spread_path):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
@@ -794,7 +1018,7 @@ def pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region, spr
     for d5, d6 in zip(deltas_5, deltas_6):
         both_deltas.append(xr.concat([d5,d6],dim='member'))
 
-    if cmip in ['CMIP5','CH202x']:
+    if cmip in ['CMIP5','CH202x','RCM']:
         deltas = deltas_5
     elif cmip == 'CMIP6':
         deltas = deltas_6
@@ -819,10 +1043,11 @@ def pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region, spr
 # ################################
 
 def pre_process_spread(path, cmip, im_or_em, season_region):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
         raise NotImplementedError(cmip)
 
     # CMIP5 and CMIP6 temperature and precipitation change
+    # CMIP5 JJA
     if cmip in ['CMIP5','CH202x'] and season_region == 'JJA_CEU' :
         changeT_fn = 'tas_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP5_rcp85_CEU_jja_2041-2060_1995-2014_diff.nc'
@@ -832,24 +1057,39 @@ def pre_process_spread(path, cmip, im_or_em, season_region):
     if cmip == 'CH202x' and season_region == 'JJA_CH' :
         changeT_fn = 'tas_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc'
         changePr_fn = 'pr_CMIP5_rcp85_CH_jja_2070-2099_1981-2010_diff.nc'
+    if cmip == 'RCM' and season_region == 'JJA_CH' :
+        changeT_fn = 'tas_mon_EUR-11_rcp85_ch_jja_2070-2099_1981-2010_diff.nc'
+        changePr_fn = 'pr_mon_EUR-11_rcp85_ch_jja_2070-2099_1981-2010_diff.nc'
+    if cmip == 'RCM' and season_region == 'JJA_ALPS' :
+        changeT_fn = 'tas_mon_EUR-11_rcp85_alps_jja_2070-2099_1981-2010_diff.nc'
+        changePr_fn = 'pr_mon_EUR-11_rcp85_alps_jja_2070-2099_1981-2010_diff.nc'
+    # CMIP5 DJF
     if cmip in ['CMIP5','CH202x'] and season_region == 'DJF_NEU' :
         changeT_fn = 'tas_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP5_rcp85_NEU_djf_2041-2060_1995-2014_diff.nc'
     if cmip in ['CMIP5','CH202x'] and season_region == 'DJF_CEU' :
         changeT_fn = 'tas_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP5_rcp85_CEU_djf_2041-2060_1995-2014_diff.nc'
+    if cmip == 'CMIP5' and season_region == 'DJF_CH' :
+        changeT_fn = 'tas_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc'
+        changePr_fn = 'pr_CMIP5_rcp85_CH_djf_2041-2060_1995-2014_diff.nc'
     if cmip == 'CH202x' and season_region == 'DJF_CH' :
         changeT_fn = 'tas_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc'
         changePr_fn = 'pr_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc'
-    if cmip == 'CMIP5' and season_region == 'DJF_CH' :
-        changeT_fn = 'tas_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc'
-        changePr_fn = 'pr_CMIP5_rcp85_CH_djf_2070-2099_1981-2010_diff.nc'
+    if cmip == 'RCM' and season_region == 'DJF_CH' :
+        changeT_fn = 'tas_mon_EUR-11_rcp85_ch_djf_2070-2099_1981-2010_diff.nc'
+        changePr_fn = 'pr_mon_EUR-11_rcp85_ch_djf_2070-2099_1981-2010_diff.nc'
+    if cmip == 'RCM' and season_region == 'DJF_ALPS' :
+        changeT_fn = 'tas_mon_EUR-11_rcp85_alps_djf_2070-2099_1981-2010_diff.nc'
+        changePr_fn = 'pr_mon_EUR-11_rcp85_alps_djf_2070-2099_1981-2010_diff.nc'
+    # CMIP6 JJA
     if cmip == 'CMIP6' and season_region == 'JJA_CEU' :
         changeT_fn = 'tas_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP6_SSP585_CEU_jja_2041-2060_1995-2014_diff.nc'
     if cmip == 'CMIP6' and season_region == 'JJA_CH' :
         changeT_fn = 'tas_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP6_SSP585_CH_jja_2041-2060_1995-2014_diff.nc'
+    # CMIP6 DJF
     if cmip == 'CMIP6' and season_region == 'DJF_NEU' :
         changeT_fn = 'tas_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc'
         changePr_fn = 'pr_CMIP6_SSP585_NEU_djf_2041-2060_1995-2014_diff.nc'
@@ -885,32 +1125,58 @@ def pre_process_spread(path, cmip, im_or_em, season_region):
 # ################################
 
 def pre_process_indep(path, cmip, im_or_em,season_region,spread_path):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
         raise NotImplementedError(cmip)
 
     # CMIP5 and CMIP6 temperature and precipitation change
     if cmip in ['CMIP5','CH202x']:
         ind_tas_fn = 'tas_mon_CMIP5_hist_g025_indmask_ann_1905-2005_mean.nc'
         ind_psl_fn = 'psl_mon_CMIP5_hist_g025_indmask_ann_1905-2005_mean.nc'
+    if cmip == 'RCM':
+        ind_tas_fn = 'tas_mon_CMIP5_RCM_hist_g025_indmask_ann_1905-2005_mean.nc'
+        ind_psl_fn = 'psl_mon_CMIP5_RCM_hist_g025_indmask_ann_1905-2005_mean.nc'
+        ind_rcm_fn = 'tas_mon_EUR-11_hist_CH202X_grid_mask_ann_1971-2005_mean.nc'
     if cmip == 'CMIP6':
         ind_tas_fn = 'tas_mon_CMIP6_hist_g025_indmask_ann_1905-2005_mean.nc'
         ind_psl_fn = 'psl_mon_CMIP6_hist_g025_indmask_ann_1905-2005_mean.nc'
 
-    # load, filter for common models
-    dsT_clim_mask = csf.load_models(path,ind_tas_fn,cmip,default_models=True)
-    dsP_clim_mask = csf.load_models(path,ind_psl_fn,cmip,default_models=True)
+    if cmip in ['CMIP5','CMIP6','CH202x']:
+        # load, filter for common models
+        dsT_clim_mask = csf.load_models(path,ind_tas_fn,cmip,default_models=True)
+        dsP_clim_mask = csf.load_models(path,ind_psl_fn,cmip,default_models=True)
 
-    # aggregate ensemble means or select spread members
-    dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
-    dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='psl')
-    inds = [dsT_clim_mask_sel,dsP_clim_mask_sel]
+        # aggregate ensemble means or select spread members
+        dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
+        dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='psl')
+        inds = [dsT_clim_mask_sel,dsP_clim_mask_sel]
 
-    # get and normailize inter-model RMSEs
-    ds_clim_mask_err = []
+        # get and normailize inter-model RMSEs
+        ds_clim_mask_err = []
 
-    for ds in inds:
-        ds_clim_mask_err.append(csf.normalize_independence_matrix(csf.get_error(ds)))
+        for ds in inds:
+            ds_clim_mask_err.append(csf.normalize_independence_matrix(csf.get_error(ds)))
 
-    # average to compute independence metric
-    dsWi = (ds_clim_mask_err[0]+ds_clim_mask_err[1])/len(ds_clim_mask_err)
+        # average to compute independence metric
+        dsWi = (ds_clim_mask_err[0]+ds_clim_mask_err[1])/len(ds_clim_mask_err)
+
+    if cmip == 'RCM':
+        # load, filter for common models
+        dsT_clim_mask = csf.load_models(path,ind_tas_fn,cmip,default_models=True)
+        dsP_clim_mask = csf.load_models(path,ind_psl_fn,cmip,default_models=True)
+        dsT_rcm_mask = csf.load_models(path,ind_rcm_fn,cmip,default_models=True)
+
+        # aggregate ensemble means or select spread members
+        dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
+        dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='psl')
+        dsT_rcm_mask_sel = csf.ensemble_mean_or_individual_member(dsT_rcm_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
+        inds = [dsT_clim_mask_sel,dsP_clim_mask_sel,dsT_rcm_mask_sel]
+
+        # get and normailize inter-model RMSEs
+        ds_clim_mask_err = []
+
+        for ds in inds:
+            ds_clim_mask_err.append(csf.normalize_independence_matrix(csf.get_error(ds)))
+
+        # average to compute independence metric
+        dsWi = (ds_clim_mask_err[0]+ds_clim_mask_err[1]+ds_clim_mask_err[2])/len(ds_clim_mask_err)
     return dsWi

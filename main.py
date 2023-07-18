@@ -25,7 +25,7 @@ def main():
     spread_path=predictors_root+'spread/'
     indep_path=predictors_root+'independence/'
     # ensemble and representation
-    cmip = 'CH202x'
+    cmip = 'RCM'
     im_or_em = 'IM'
     season_region = 'JJA_CH'
     #####################################################
@@ -47,8 +47,8 @@ def main():
 
     ############# INPUTS for subselection #############
     m = 2 # number of models in the subset
-    alpha = 10 # number of steps in alpha's [0,1] range
-    beta = 10 # number of steps in alpha's [0,1] range
+    alpha = 5 # number of steps in alpha's [0,1] range
+    beta = 5 # number of steps in alpha's [0,1] range
     perf_cutoff = 2 # performance threshold to pre-filter models (if desired)
     max_workers = 1
     min2 = False

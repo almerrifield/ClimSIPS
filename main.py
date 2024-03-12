@@ -9,26 +9,47 @@ import ClimSIPS.pre_processing as cspp
 import ClimSIPS.plots as csp
 
 import sys
+import configparser
 
 def main():
     print('==== starting subselection ====')
 
     ############# INPUTS for pre-processing #############
 
-    if len(sys.argv) > 1:
-        predictors_root = sys.argv[1]
-    else:
+    all_config = configparser.ConfigParser()
+
+    if len(sys.argv) == 4:
+        all_config.read(sys.argv[1])
+        config_key = sys.argv[2]
+        predictors_root = sys.argv[3]
+    if len(sys.argv) == 3:
+        all_config.read(sys.argv[1])
+        config_key = sys.argv[2]
         predictors_root = "/net/h2o/climphys/meranna/Data/predictors/"
+    else:
+        print("Use python main.py config_climsips.ini config_section_key predictor_root_directory")
+
+    config = all_config[config_key]
 
     # paths to predictors
     perf_path=predictors_root+'performance/'
     spread_path=predictors_root+'spread/'
     indep_path=predictors_root+'independence/'
-    # ensemble and representation
-    cmip = 'RCM'
-    im_or_em = 'IM'
-    season_region = 'JJA_CH'
-    #####################################################
+
+    # # ensemble and representation
+    cmip = config['cmip']
+    im_or_em = config.get('im_or_em','IM')
+    season_region = config['season_region']
+
+    # convert subselection inputs in the config to integers
+    m = int(config['m'])
+    alpha = int(config.get('alpha_steps','10'))
+    beta = int(config.get('beta_steps','10'))
+    perf_cutoff = int(config.get('perf_cutoff','10'))
+    max_workers = int(config.get('max_workers','1'))
+    min2 = config.getboolean('min2')
+    print(min2)
+#####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
     dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path)
@@ -44,16 +65,7 @@ def main():
     csp.independence_square(outfile,cmip,im_or_em,season_region,plotname="independence_metric.png")
     csp.spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png")
 
-
-    ############# INPUTS for subselection #############
-    m = 2 # number of models in the subset
-    alpha = 5 # number of steps in alpha's [0,1] range
-    beta = 5 # number of steps in alpha's [0,1] range
-    perf_cutoff = 2 # performance threshold to pre-filter models (if desired)
-    max_workers = 1
-    min2 = False
-    ###################################################
-
+    # subselection
     optimal_models_csv = csf.select_models(outfile, cmip, im_or_em, season_region, m, alpha, beta, perf_cutoff, max_workers=max_workers, min2=min2)
 
     csp.selection_triangle(optimal_models_csv,alpha,plotname="optimal_subsets.png")

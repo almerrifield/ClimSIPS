@@ -267,8 +267,6 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         dss.sel(member='MPI-ESM1-2-HR-r1i1p1f1'),dss.sel(member='NorESM2-MM-r1i1p1f1'),
         dss.sel(member='UKESM1-0-LL-r1i1p1f2')],dim='member')
         return ds_all
-
-        []
     ## RCM by ensemble means
     if choice == 'EM' and CMIP == 'RCM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
         cosmo_ec = dss.sel(member=['CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r12i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r1i1p1','CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r3i1p1']).mean('member')
@@ -339,6 +337,7 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         dss.sel(member='SMHI-RCA4-IPSL-CM5A-MR-r1i1p1'),smhi_mpi,dss.sel(member='SMHI-RCA4-NorESM1-M-r1i1p1'),dss.sel(member='UHOH-WRF361H-EC-EARTH-r1i1p1'),
         dss.sel(member='UHOH-WRF361H-HadGEM2-ES-r1i1p1'),dss.sel(member='UHOH-WRF361H-MIROC5-r1i1p1'), dss.sel(member='UHOH-WRF361H-MPI-ESM-LR-r1i1p1')],dim='member')
         return ds_all
+
     ## CMIP6 by spread
     if choice == 'IM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
@@ -351,22 +350,24 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         return dss.sortby(dss.member)
     ## CMIP6 RCM by spread (for normalization)
     if choice == 'IM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mem_out = csms.CMIP6_RCM_common_members
+        #mem_out = csms.CMIP6_RCM_common_members ### patch here
+        mem_out = csms.CMIP6_max_warming_members(csms.CMIP6_common_members,season_region,spread_path) ### patch here
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
     ## CMIP5 RCM by spread
     if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
+        #mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path) ### patch here
+        mem_out = csms.CMIP5_max_warming_members(csms.CMIP5_common_members,season_region,spread_path) ### patch here
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
     ## RCM by spread (for normalization, current patch)
     if choice == 'IM' and CMIP == 'RCM_CMIP6' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
-        mem_out = csms.RCM_spread_maximizing_members(csms.RCM_common_members,season_region,spread_path)
+        mem_out = csms.RCM_max_warming_members(csms.RCM_common_members,season_region,spread_path)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-    ## RCM by spread
+    ## RCM by spread (max warming patch)
     if choice == 'IM' and CMIP == 'RCM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
-        mem_out = csms.RCM_spread_maximizing_members(csms.RCM_common_members,season_region,spread_path)
+        mem_out = csms.RCM_max_warming_members(csms.RCM_common_members,season_region,spread_path)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
 

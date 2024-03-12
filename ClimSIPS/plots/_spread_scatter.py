@@ -11,8 +11,8 @@ from .. import member_selection as csms
 
 __all__ = ["spread_scatter"]
 
-def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png"):
-    if cmip not in ['CMIP5','CMIP6','CH202x','RCM']:
+def spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png"):
+    if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
@@ -23,44 +23,56 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
     fig = plt.figure(figsize=(9,7))
     ax = plt.subplot(111)
     # ################################################
-    dsWi = xr.open_dataset(filename,use_cftime = True)
+    dsWi = xr.open_dataset(outfile,use_cftime = True)
 
     # All keyword arguments for CMIP5 and CMIP6 (add here)
     plot_kwargs = {
+        'ACCESS-CM2-r1i1p1f1': dict(c='tab:red',s=20,marker='x',alpha=1), #
         'ACCESS-CM2-r2i1p1f1': dict(c='tab:red',s=20,marker='x',alpha=1), # start CMIP6 IM
+        'ACCESS-CM2-r3i1p1f1': dict(c='tab:red',s=20,marker='x',alpha=1), # JJA CH202x case
         'ACCESS-ESM1-5-r1i1p1f1': dict(c='tab:red',s=30,marker='+',alpha=1),
         'ACCESS-ESM1-5-r5i1p1f1': dict(c='tab:red',s=30,marker='+',alpha=1), # DJF case
         'ACCESS-ESM1-5-r4i1p1f1': dict(c='tab:red',s=30,marker='+',alpha=1), # DJF CEU case
         'AWI-CM-1-1-MR-r1i1p1f1': dict(c='tab:orange',s=20,marker='x',alpha=1),
         'CAS-ESM2-0-r1i1p1f1': dict(c='tab:cyan',s=20,marker='x',alpha=1),
         'CAS-ESM2-0-r3i1p1f1': dict(c='tab:cyan',s=20,marker='x',alpha=1), # DJF case
+        'CESM2-WACCM-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1),
         'CESM2-WACCM-r2i1p1f1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1),
         'CESM2-WACCM-r3i1p1f1': dict(c='darkgoldenrod',s=20,marker='x',alpha=1), # DJF CEU case
         'CESM2-r11i1p1f1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1),
+        'CESM2-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1), # JJA CH202x case
         'CESM2-r2i1p1f1': dict(c='darkgoldenrod',s=20,marker='o',alpha=1), # DJF case
         'CMCC-CM2-SR5-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='^',alpha=1),
         'CMCC-ESM2-r1i1p1f1': dict(c='darkgoldenrod',s=30,marker='*',alpha=1),
         'CNRM-CM6-1-HR-r1i1p1f2': dict(c='cornflowerblue',s=20,marker='x',alpha=1),
+        'CNRM-CM6-1-r1i1p1f2': dict(c='cornflowerblue',s=20,marker='o',alpha=1), # JJA CH202x case
         'CNRM-CM6-1-r4i1p1f2': dict(c='cornflowerblue',s=20,marker='o',alpha=1),
         'CNRM-CM6-1-r5i1p1f2': dict(c='cornflowerblue',s=20,marker='o',alpha=1), # DJF case
+        'CNRM-CM6-1-r6i1p1f2': dict(c='cornflowerblue',s=20,marker='o',alpha=1),
         'CNRM-ESM2-1-r2i1p1f2': dict(c='cornflowerblue',s=20,marker='^',alpha=1),
         'CNRM-ESM2-1-r3i1p1f2': dict(c='cornflowerblue',s=20,marker='^',alpha=1), # DJF case
+        'CNRM-ESM2-1-r4i1p1f2': dict(c='cornflowerblue',s=20,marker='^',alpha=1),
         'CanESM5-r16i1p1f1': dict(c='dodgerblue',s=20,marker='x',alpha=1),
+        'CanESM5-r10i1p2f1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # JJA CH202x case
         'CanESM5-r14i1p2f1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # DJF case
         'CanESM5-r1i1p2f1': dict(c='dodgerblue',s=20,marker='x',alpha=1), # DJF CEU case
+        'CanESM5-r23i1p2f1': dict(c='dodgerblue',s=20,marker='x',alpha=1),
         'E3SM-1-1-r1i1p1f1': dict(c='k',s=20,marker='x',alpha=1),
         'FGOALS-f3-L-r1i1p1f1': dict(c='maroon',s=20,marker='x',alpha=1),
+        'FGOALS-g3-r1i1p1f1': dict(c='maroon',s=20,marker='o',alpha=1), # JJA CH202x case
         'FGOALS-g3-r2i1p1f1': dict(c='maroon',s=20,marker='o',alpha=1),
         'GFDL-CM4-r1i1p1f1': dict(c='indigo',s=20,marker='x',alpha=1),
         'GFDL-ESM4-r1i1p1f1': dict(c='indigo',s=20,marker='o',alpha=1),
         'GISS-E2-1-G-r1i1p3f1': dict(c='blueviolet',s=20,marker='x',alpha=1),
         'HadGEM3-GC31-LL-r3i1p1f3': dict(c='tab:red',s=20,marker='o',alpha=1),
+        'HadGEM3-GC31-LL-r4i1p1f3': dict(c='tab:red',s=20,marker='o',alpha=1), # JJA CH202x case
         'HadGEM3-GC31-MM-r1i1p1f3': dict(c='tab:red',s=20,marker='^',alpha=1),
         'HadGEM3-GC31-MM-r2i1p1f3': dict(c='tab:red',s=20,marker='^',alpha=1), # DJF case
         'INM-CM4-8-r1i1p1f1': dict(c='mediumseagreen',s=20,marker='x',alpha=1),
         'INM-CM5-0-r1i1p1f1': dict(c='mediumseagreen',s=20,marker='o',alpha=1),
         'IPSL-CM6A-LR-r6i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1),
         'IPSL-CM6A-LR-r2i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1), # DJF case
+        'IPSL-CM6A-LR-r3i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1), # JJA CH202x case
         'IPSL-CM6A-LR-r4i1p1f1': dict(c='royalblue',s=20,marker='x',alpha=1), # DJF CEU case
         'KACE-1-0-G-r3i1p1f1': dict(c='tab:red',s=30,marker='*',alpha=1),
         'KIOST-ESM-r1i1p1f1': dict(c='darkslateblue',s=20,marker='x',alpha=1),
@@ -69,14 +81,20 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
         'MIROC-ES2L-r2i1p1f2': dict(c='lightsalmon',s=20,marker='x',alpha=1), # DJF CEU case
         'MIROC6-r15i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1),
         'MIROC6-r12i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1), # DJF case
+        'MIROC6-r14i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1),
+        'MIROC6-r26i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1), # JJA CH202x case
         'MIROC6-r50i1p1f1': dict(c='lightsalmon',s=20,marker='o',alpha=1), # DJF CEU case
         'MPI-ESM1-2-HR-r1i1p1f1': dict(c='tab:orange',s=20,marker='o',alpha=1),
         'MPI-ESM1-2-HR-r2i1p1f1': dict(c='tab:orange',s=20,marker='o',alpha=1), # DJF case
+        'MPI-ESM1-2-LR-r2i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1), # JJA CH202x case
         'MPI-ESM1-2-LR-r10i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1),
         'MPI-ESM1-2-LR-r4i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1), # DJF case
+        'MPI-ESM1-2-LR-r5i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1),
         'MPI-ESM1-2-LR-r9i1p1f1': dict(c='tab:orange',s=20,marker='^',alpha=1), # DJF CEU case
         'MRI-ESM2-0-r1i1p1f1': dict(c='palevioletred',s=20,marker='x',alpha=1),
+        'MRI-ESM2-0-r1i2p1f1': dict(c='palevioletred',s=20,marker='x',alpha=1),
         'NESM3-r1i1p1f1': dict(c='tab:orange',s=30,marker='*',alpha=1),
+        'NESM3-r2i1p1f1': dict(c='tab:orange',s=30,marker='*',alpha=1),
         'NorESM2-MM-r1i1p1f1': dict(c='darkgoldenrod',s=20,marker='d',alpha=1),
         'TaiESM1-r1i1p1f1': dict(c='darkgoldenrod',s=30,marker='+',alpha=1),
         'UKESM1-0-LL-r1i1p1f2': dict(c='tab:red',s=20,marker='d',alpha=1), # end CMIP6 IM
@@ -332,14 +350,31 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
         period = '2041/2060 - 1995/2014'
     if cmip == 'CH202x' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models =  csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
-        period = '2071/2099 - 1981/2010'
+        period = '2070/2099 - 1981/2010'
     if cmip == 'CH202x' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         models = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r0i0p0','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
         'MPI-ESM-LR-r0i0p0','NorESM1-M-r1i1p1']
-        period = '2071/2099 - 1981/2010'
+        period = '2070/2099 - 1981/2010'
+    if cmip == 'CH202x_CMIP6' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        models =  csms.CMIP6_max_warming_members(csms.CMIP6_common_members,season_region,spread_path)
+        period = '2070/2099 - 1981/2010'
+    if cmip == 'CH202x_CMIP6' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+        models = ['ACCESS-CM2-r0i0p0f0', 'ACCESS-ESM1-5-r0i0p0f0',
+            'AWI-CM-1-1-MR-r1i1p1f1', 'CAS-ESM2-0-r0i0p0f0', 'CESM2-WACCM-r0i0p0f0',
+            'CESM2-r0i0p0f0', 'CMCC-CM2-SR5-r1i1p1f1', 'CMCC-ESM2-r1i1p1f1',
+            'CNRM-CM6-1-HR-r1i1p1f2', 'CNRM-CM6-1-r0i0p0f0', 'CNRM-ESM2-1-r0i0p0f0',
+            'CanESM5-r0i0p0f0', 'E3SM-1-1-r1i1p1f1', 'FGOALS-f3-L-r1i1p1f1',
+            'FGOALS-g3-r0i0p0f0', 'GFDL-CM4-r1i1p1f1', 'GFDL-ESM4-r1i1p1f1',
+            'GISS-E2-1-G-r1i1p3f1', 'HadGEM3-GC31-LL-r0i0p0f0',
+            'HadGEM3-GC31-MM-r0i0p0f0', 'INM-CM4-8-r1i1p1f1', 'INM-CM5-0-r1i1p1f1',
+            'IPSL-CM6A-LR-r0i0p0f0', 'KACE-1-0-G-r0i0p0f0', 'KIOST-ESM-r1i1p1f1',
+            'MIROC-ES2L-r0i0p0f0', 'MIROC6-r0i0p0f0', 'MPI-ESM1-2-HR-r0i0p0f0',
+            'MPI-ESM1-2-LR-r0i0p0f0', 'MRI-ESM2-0-r0i0p0f0', 'NESM3-r0i0p0f0',
+            'NorESM2-MM-r1i1p1f1', 'TaiESM1-r1i1p1f1', 'UKESM1-0-LL-r0i0p0f0']
+        period = '2070/2099 - 1981/2010'
     if cmip == 'RCM' and im_or_em == 'IM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
-        models =  csms.RCM_spread_maximizing_members(csms.RCM_common_members,season_region,spread_path)
-        period = '2071/2099 - 1981/2010'
+        models =  csms.RCM_max_warming_members(csms.RCM_common_members,season_region,spread_path)
+        period = '2070/2099 - 1981/2010'
     if cmip == 'RCM' and im_or_em == 'EM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
         models = ['CLMcom-CCLM4-8-17-CanESM2-r1i1p1', 'CLMcom-CCLM4-8-17-EC-EARTH-r12i1p1', 'CLMcom-CCLM4-8-17-HadGEM2-ES-r1i1p1', 'CLMcom-CCLM4-8-17-MIROC5-r1i1p1',
                      'CLMcom-CCLM4-8-17-MPI-ESM-LR-r1i1p1', 'CLMcom-ETH-COSMO-crCLIM-v1-1-CNRM-CM5-r1i1p1', 'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r0i0p0', 'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r0i0p0',
@@ -353,7 +388,7 @@ def spread_scatter(filename,cmip,im_or_em,season_region,spread_path,plotname="sp
                      'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1','MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1','MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1','MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1','MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1',
                      'MPI-CSC-REMO2009-MPI-ESM-LR-r0i0p0', 'SMHI-RCA4-EC-EARTH-r0i0p0','SMHI-RCA4-HadGEM2-ES-r1i1p1', 'SMHI-RCA4-IPSL-CM5A-MR-r1i1p1','SMHI-RCA4-MPI-ESM-LR-r0i0p0', 'SMHI-RCA4-NorESM1-M-r1i1p1',
                      'UHOH-WRF361H-EC-EARTH-r1i1p1', 'UHOH-WRF361H-HadGEM2-ES-r1i1p1','UHOH-WRF361H-MIROC5-r1i1p1', 'UHOH-WRF361H-MPI-ESM-LR-r1i1p1']
-        period = '2071/2099 - 1981/2010'
+        period = '2070/2099 - 1981/2010'
 
     # plot quadrant boundries (medians)
     plt.axvline(dsWi['tas_change'].median("member"),color='k',linewidth=1,linestyle='dashed',alpha=0.2)

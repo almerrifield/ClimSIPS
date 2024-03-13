@@ -49,7 +49,7 @@ The current code allows the user to specify the following:
 - an option to run the selection step in parallel on multiple cores (max_workers)
 - option to output the minimum or the next to minimum of the cost function (min2)
 
-To run ClimSIPS, please pass the path to your predictors directory (see above) and set the following inputs in config_climsips.ini:
+To run ClimSIPS, please set the following inputs in config_climsips.ini:
 
 ``` python
     #### pre-processing inputs ####
@@ -78,4 +78,10 @@ To run ClimSIPS, please pass the path to your predictors directory (see above) a
 
     # find the secondary minimum of the cost function
     min2 = False
+```
+
+The package runs with the following:
+
+```python
+python main.py config_climsips.ini default path_to_predictors
 ```

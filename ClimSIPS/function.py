@@ -348,13 +348,13 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region,spread_path)
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-    ## CMIP6 RCM by spread (for normalization)
+    ## CMIP6 RCM by spread (for normalization; max warming patch)
     if choice == 'IM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         #mem_out = csms.CMIP6_RCM_common_members ### patch here
         mem_out = csms.CMIP6_max_warming_members(csms.CMIP6_common_members,season_region,spread_path) ### patch here
         dss = dss.sel(member=mem_out)
         return dss.sortby(dss.member)
-    ## CMIP5 RCM by spread
+    ## CMIP5 RCM by spread (max warming patch)
     if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         #mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path) ### patch here
         mem_out = csms.CMIP5_max_warming_members(csms.CMIP5_common_members,season_region,spread_path) ### patch here
@@ -603,6 +603,9 @@ def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=Fal
 # ################################
 # Make output files
 # ################################
+
+## TO DO: pass performance CSV file
+## - set new CMIP6 common members
 
 def make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile='perf_ind_spread_metrics.nc'):
     print('Models Used: ',dsWi.member.data)

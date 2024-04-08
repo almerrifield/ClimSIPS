@@ -48,7 +48,7 @@ def main():
     perf_cutoff = int(config.get('perf_cutoff','10'))
     max_workers = int(config.get('max_workers','1'))
     min2 = config.getboolean('min2')
-    print(min2)
+    # print(min2)
 #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics

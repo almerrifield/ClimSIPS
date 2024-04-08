@@ -11,6 +11,7 @@ from .. import member_selection as csms
 
 __all__ = ["spread_scatter"]
 
+# TO DO: add scenarios
 def spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png"):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)

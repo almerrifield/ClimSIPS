@@ -625,8 +625,9 @@ CMIP6_rsds_members = ["ACCESS-CM2-r1i1p1f1", "ACCESS-CM2-r2i1p1f1",
     "UKESM1-0-LL-r8i1p1f2" ]
 
 ### select predictors here ###
-CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_swcre_members, CMIP6_pr_members,CMIP6_tas_members,CMIP6_rsds_members,CMIP6_ECS_members)
+CMIP6_predictor_choices = (CMIP6_tos_members, CMIP6_swcre_members, CMIP6_pr_members,CMIP6_tas_members,CMIP6_psl_members,CMIP6_ECS_members)
 CMIP6_common_members = reduce(np.intersect1d, CMIP6_predictor_choices)
+
 
 # members available for each predictor, CMIP5
 CMIP5_tos_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'BNU-ESM-r1i1p1',
@@ -821,20 +822,20 @@ CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_swcre_members, CMIP5_pr_memb
 CMIP5_common_members = reduce(np.intersect1d, CMIP5_predictor_choices)
 
 # Driving models for CH202x RCMs
-# CMIP5_RCM_common_members = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r12i1p1',
-# 'EC-EARTH-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
-# 'MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1','NorESM1-M-r1i1p1']
+CMIP5_RCM_common_members = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r12i1p1',
+'EC-EARTH-r1i1p1','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
+'MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1','NorESM1-M-r1i1p1']
 
-CMIP5_RCM_common_members = CMIP5_common_members ## patch here
+# CMIP5_RCM_common_members = CMIP5_common_members ## patch here
 
 # From Sobolowski et al. (2023)
 # EURO-CORDEX CMIP6 GCM Selection & Ensemble Design: Best Practices and Recommendations.
 # Zenodo. https://doi.org/10.5281/zenodo.7673400
-# CMIP6_RCM_common_members = ['CESM2-r11i1p1f1','CMCC-CM2-SR5-r1i1p1f1',
-# 'CNRM-ESM2-1-r1i1p1f2', 'EC-Earth3-Veg-r1i1p1f1','IPSL-CM6A-LR-r1i1p1f1',
-# 'MIROC6-r1i1p1f1', 'MPI-ESM1-2-HR-r1i1p1f1','NorESM2-MM-r1i1p1f1', 'UKESM1-0-LL-r1i1p1f2']
+CMIP6_RCM_common_members = ['CESM2-r11i1p1f1','CMCC-CM2-SR5-r1i1p1f1',
+'CNRM-ESM2-1-r1i1p1f2', 'EC-Earth3-Veg-r1i1p1f1','IPSL-CM6A-LR-r1i1p1f1',
+'MIROC6-r1i1p1f1', 'MPI-ESM1-2-HR-r1i1p1f1','NorESM2-MM-r1i1p1f1', 'UKESM1-0-LL-r1i1p1f2']
 
-CMIP6_RCM_common_members = CMIP6_common_members ## patch here
+# CMIP6_RCM_common_members = CMIP6_common_members ## patch here
 
 # RCMs themselves
 RCM_tas_members = ['CLMcom-CCLM4-8-17-CanESM2-r1i1p1', 'CLMcom-CCLM4-8-17-CNRM-CM5-r1i1p1',
@@ -933,30 +934,30 @@ RCM_pr_members = ['CLMcom-CCLM4-8-17-CanESM2-r1i1p1',
        'UHOH-WRF361H-HadGEM2-ES-r1i1p1', 'UHOH-WRF361H-MPI-ESM-LR-r1i1p1']
 
 ## RCMs with Transient Aerosols
-RCM_tas_TA_members = ['CNRM-ALADIN63-CNRM-CM5-r1i1p1', 'CNRM-ALADIN63-HadGEM2-ES-r1i1p1',
-       'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1', 'CNRM-ALADIN63-NorESM1-M-r1i1p1',
-       'KNMI-RACMO22E-CNRM-CM5-r1i1p1', 'KNMI-RACMO22E-EC-EARTH-r12i1p1',
-       'KNMI-RACMO22E-EC-EARTH-r1i1p1', 'KNMI-RACMO22E-EC-EARTH-r3i1p1',
-       'KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1', 'KNMI-RACMO22E-HadGEM2-ES-r1i1p1',
-       'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1', 'KNMI-RACMO22E-NorESM1-M-r1i1p1',
-       'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1',
-       'MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1',
-       'MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1',
-       'MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1',
-       'MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1']
-
-RCM_pr_TA_members = [
-       'CNRM-ALADIN63-CNRM-CM5-r1i1p1', 'CNRM-ALADIN63-HadGEM2-ES-r1i1p1',
-       'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1', 'CNRM-ALADIN63-NorESM1-M-r1i1p1',
-       'KNMI-RACMO22E-CNRM-CM5-r1i1p1',
-       'KNMI-RACMO22E-EC-EARTH-r12i1p1', 'KNMI-RACMO22E-EC-EARTH-r1i1p1',
-       'KNMI-RACMO22E-EC-EARTH-r3i1p1', 'KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1',
-       'KNMI-RACMO22E-HadGEM2-ES-r1i1p1', 'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1',
-       'KNMI-RACMO22E-NorESM1-M-r1i1p1', 'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1',
-       'MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1',
-       'MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1',
-       'MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1',
-       'MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1']
+# RCM_tas_TA_members = ['CNRM-ALADIN63-CNRM-CM5-r1i1p1', 'CNRM-ALADIN63-HadGEM2-ES-r1i1p1',
+#        'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1', 'CNRM-ALADIN63-NorESM1-M-r1i1p1',
+#        'KNMI-RACMO22E-CNRM-CM5-r1i1p1', 'KNMI-RACMO22E-EC-EARTH-r12i1p1',
+#        'KNMI-RACMO22E-EC-EARTH-r1i1p1', 'KNMI-RACMO22E-EC-EARTH-r3i1p1',
+#        'KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1', 'KNMI-RACMO22E-HadGEM2-ES-r1i1p1',
+#        'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1', 'KNMI-RACMO22E-NorESM1-M-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1',
+#        'MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1']
+#
+# RCM_pr_TA_members = [
+#        'CNRM-ALADIN63-CNRM-CM5-r1i1p1', 'CNRM-ALADIN63-HadGEM2-ES-r1i1p1',
+#        'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1', 'CNRM-ALADIN63-NorESM1-M-r1i1p1',
+#        'KNMI-RACMO22E-CNRM-CM5-r1i1p1',
+#        'KNMI-RACMO22E-EC-EARTH-r12i1p1', 'KNMI-RACMO22E-EC-EARTH-r1i1p1',
+#        'KNMI-RACMO22E-EC-EARTH-r3i1p1', 'KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1',
+#        'KNMI-RACMO22E-HadGEM2-ES-r1i1p1', 'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1',
+#        'KNMI-RACMO22E-NorESM1-M-r1i1p1', 'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1',
+#        'MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1',
+#        'MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1']
 
 ### select predictors here ###
 RCM_predictor_choices = (RCM_tas_members, RCM_pr_members) # RCM_tas_TA_members, RCM_pr_TA_members
@@ -1023,6 +1024,10 @@ def open_cached(path, **kwgs):
     return xr.open_dataset(path, **kwgs)
 
 #######################################################################
+# TO DO:
+# - add scenarios
+# - add user given spread periods
+
 def CMIP6_spread_maximizing_members(CMIP6_common_members,season_region,spread_path):
 
     if season_region == 'JJA_CEU':

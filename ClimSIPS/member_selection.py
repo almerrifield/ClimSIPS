@@ -819,7 +819,7 @@ CMIP5_rsds_members = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'BNU-ESM-r1i1p1', 
         'NorESM1-ME-r1i1p1', 'NorESM1-M-r1i1p1', 'bcc-csm1-1-m-r1i1p1', 'bcc-csm1-1-r1i1p1', 'inmcm4-r1i1p1']
 
 ### select predictors here ###
-CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_swcre_members, CMIP5_pr_members,CMIP5_tas_members,CMIP5_rsds_members,CMIP5_ECS_members)
+CMIP5_predictor_choices = (CMIP5_tos_members, CMIP5_swcre_members, CMIP5_pr_members,CMIP5_tas_members,CMIP5_psl_members,CMIP5_ECS_members)
 CMIP5_common_members = reduce(np.intersect1d, CMIP5_predictor_choices)
 
 # Driving models for CH202x RCMs
@@ -1020,7 +1020,7 @@ def select_max_warming_members(keys,targets,ds_norm,dict_ind):
     dict_ind[max_key] = (ds_norm[0].sel(member=max_key).tas.item(0),ds_norm[1].sel(member=max_key).pr.item(0))
     return dict_ind
 
-#@functools.lru_cache
+@functools.lru_cache
 def open_cached(path, **kwgs):
     return xr.open_dataset(path, **kwgs)
 

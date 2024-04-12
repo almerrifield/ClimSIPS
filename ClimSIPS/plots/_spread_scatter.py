@@ -12,7 +12,7 @@ from .. import member_selection as csms
 __all__ = ["spread_scatter"]
 
 # TO DO: add scenarios
-def spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spread_scatter.png"):
+def spread_scatter(outfile,cmip,im_or_em,season_region,plotname="spread_scatter.png"):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
@@ -25,7 +25,7 @@ def spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spr
     ax = plt.subplot(111)
     # ################################################
     dsWi = xr.open_dataset(outfile,use_cftime = True)
-
+    models = list(dsWi['delta_q'].member.data)
     # All keyword arguments for CMIP5 and CMIP6 (add here)
     plot_kwargs = {
         'ACCESS-CM2-r1i1p1f1': dict(c='tab:red',s=20,marker='x',alpha=1), #
@@ -317,78 +317,11 @@ def spread_scatter(outfile,cmip,im_or_em,season_region,spread_path,plotname="spr
         'SMHI-RCA4-MPI-ESM-LR-r0i0p0': dict(c='tab:orange',s=20,marker='1',alpha=1),
         }
 
-
-    if cmip == 'CMIP6' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models =  csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
+    if cmip in ['CMIP5','CMIP6'] and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         period = '2041/2060 - 1995/2014'
-    if cmip == 'CMIP6' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models = ['ACCESS-CM2-r0i0p0f0', 'ACCESS-ESM1-5-r0i0p0f0',
-            'AWI-CM-1-1-MR-r1i1p1f1', 'CAS-ESM2-0-r0i0p0f0', 'CESM2-WACCM-r0i0p0f0',
-            'CESM2-r0i0p0f0', 'CMCC-CM2-SR5-r1i1p1f1', 'CMCC-ESM2-r1i1p1f1',
-            'CNRM-CM6-1-HR-r1i1p1f2', 'CNRM-CM6-1-r0i0p0f0', 'CNRM-ESM2-1-r0i0p0f0',
-            'CanESM5-r0i0p0f0', 'E3SM-1-1-r1i1p1f1', 'FGOALS-f3-L-r1i1p1f1',
-            'FGOALS-g3-r0i0p0f0', 'GFDL-CM4-r1i1p1f1', 'GFDL-ESM4-r1i1p1f1',
-            'GISS-E2-1-G-r1i1p3f1', 'HadGEM3-GC31-LL-r0i0p0f0',
-            'HadGEM3-GC31-MM-r0i0p0f0', 'INM-CM4-8-r1i1p1f1', 'INM-CM5-0-r1i1p1f1',
-            'IPSL-CM6A-LR-r0i0p0f0', 'KACE-1-0-G-r0i0p0f0', 'KIOST-ESM-r1i1p1f1',
-            'MIROC-ES2L-r0i0p0f0', 'MIROC6-r0i0p0f0', 'MPI-ESM1-2-HR-r0i0p0f0',
-            'MPI-ESM1-2-LR-r0i0p0f0', 'MRI-ESM2-0-r0i0p0f0', 'NESM3-r0i0p0f0',
-            'NorESM2-MM-r1i1p1f1', 'TaiESM1-r1i1p1f1', 'UKESM1-0-LL-r0i0p0f0']
-        period = '2041/2060 - 1995/2014'
-    if cmip == 'CMIP5' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models =  csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region,spread_path)
-        period = '2041/2060 - 1995/2014'
-    if cmip == 'CMIP5' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models = ['ACCESS1-0-r1i1p1', 'ACCESS1-3-r1i1p1', 'CCSM4-r0i0p0',
-            'CESM1-CAM5-r0i0p0', 'CNRM-CM5-r0i0p0', 'CSIRO-Mk3-6-0-r0i0p0',
-            'CanESM2-r0i0p0', 'GFDL-CM3-r1i1p1', 'GFDL-ESM2G-r1i1p1',
-            'GFDL-ESM2M-r1i1p1', 'GISS-E2-H-r0i0p0', 'GISS-E2-R-r0i0p0',
-            'HadGEM2-ES-r0i0p0', 'IPSL-CM5A-LR-r0i0p0', 'IPSL-CM5A-MR-r1i1p1',
-            'IPSL-CM5B-LR-r1i1p1', 'MIROC-ESM-r1i1p1', 'MIROC5-r0i0p0',
-            'MPI-ESM-LR-r0i0p0', 'MPI-ESM-MR-r1i1p1', 'MRI-CGCM3-r1i1p1',
-            'NorESM1-M-r1i1p1', 'NorESM1-ME-r1i1p1', 'bcc-csm1-1-m-r1i1p1',
-            'bcc-csm1-1-r1i1p1', 'inmcm4-r1i1p1']
-        period = '2041/2060 - 1995/2014'
-    if cmip == 'CH202x' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models =  csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
+    if cmip in ['CH202x','CH202x_CMIP6'] and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
         period = '2070/2099 - 1981/2010'
-    if cmip == 'CH202x' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models = ['CNRM-CM5-r1i1p1','CanESM2-r1i1p1','EC-EARTH-r0i0p0','HadGEM2-ES-r1i1p1','IPSL-CM5A-MR-r1i1p1','MIROC5-r1i1p1',
-        'MPI-ESM-LR-r0i0p0','NorESM1-M-r1i1p1']
-        period = '2070/2099 - 1981/2010'
-    if cmip == 'CH202x_CMIP6' and im_or_em == 'IM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models =  csms.CMIP6_max_warming_members(csms.CMIP6_common_members,season_region,spread_path)
-        period = '2070/2099 - 1981/2010'
-    if cmip == 'CH202x_CMIP6' and im_or_em == 'EM' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        models = ['ACCESS-CM2-r0i0p0f0', 'ACCESS-ESM1-5-r0i0p0f0',
-            'AWI-CM-1-1-MR-r1i1p1f1', 'CAS-ESM2-0-r0i0p0f0', 'CESM2-WACCM-r0i0p0f0',
-            'CESM2-r0i0p0f0', 'CMCC-CM2-SR5-r1i1p1f1', 'CMCC-ESM2-r1i1p1f1',
-            'CNRM-CM6-1-HR-r1i1p1f2', 'CNRM-CM6-1-r0i0p0f0', 'CNRM-ESM2-1-r0i0p0f0',
-            'CanESM5-r0i0p0f0', 'E3SM-1-1-r1i1p1f1', 'FGOALS-f3-L-r1i1p1f1',
-            'FGOALS-g3-r0i0p0f0', 'GFDL-CM4-r1i1p1f1', 'GFDL-ESM4-r1i1p1f1',
-            'GISS-E2-1-G-r1i1p3f1', 'HadGEM3-GC31-LL-r0i0p0f0',
-            'HadGEM3-GC31-MM-r0i0p0f0', 'INM-CM4-8-r1i1p1f1', 'INM-CM5-0-r1i1p1f1',
-            'IPSL-CM6A-LR-r0i0p0f0', 'KACE-1-0-G-r0i0p0f0', 'KIOST-ESM-r1i1p1f1',
-            'MIROC-ES2L-r0i0p0f0', 'MIROC6-r0i0p0f0', 'MPI-ESM1-2-HR-r0i0p0f0',
-            'MPI-ESM1-2-LR-r0i0p0f0', 'MRI-ESM2-0-r0i0p0f0', 'NESM3-r0i0p0f0',
-            'NorESM2-MM-r1i1p1f1', 'TaiESM1-r1i1p1f1', 'UKESM1-0-LL-r0i0p0f0']
-        period = '2070/2099 - 1981/2010'
-    if cmip == 'RCM' and im_or_em == 'IM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
-        models =  csms.RCM_max_warming_members(csms.RCM_common_members,season_region,spread_path)
-        period = '2070/2099 - 1981/2010'
-    if cmip == 'RCM' and im_or_em == 'EM' and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
-        models = ['CLMcom-CCLM4-8-17-CanESM2-r1i1p1', 'CLMcom-CCLM4-8-17-EC-EARTH-r12i1p1', 'CLMcom-CCLM4-8-17-HadGEM2-ES-r1i1p1', 'CLMcom-CCLM4-8-17-MIROC5-r1i1p1',
-                     'CLMcom-CCLM4-8-17-MPI-ESM-LR-r1i1p1', 'CLMcom-ETH-COSMO-crCLIM-v1-1-CNRM-CM5-r1i1p1', 'CLMcom-ETH-COSMO-crCLIM-v1-1-EC-EARTH-r0i0p0', 'CLMcom-ETH-COSMO-crCLIM-v1-1-MPI-ESM-LR-r0i0p0',
-                     'CLMcom-ETH-COSMO-crCLIM-v1-1-NorESM1-M-r1i1p1', 'CNRM-ALADIN63-CNRM-CM5-r1i1p1', 'CNRM-ALADIN63-HadGEM2-ES-r1i1p1', 'CNRM-ALADIN63-MPI-ESM-LR-r1i1p1', 'CNRM-ALADIN63-NorESM1-M-r1i1p1',
-                     'DMI-HIRHAM5-CNRM-CM5-r1i1p1', 'DMI-HIRHAM5-EC-EARTH-r0i0p0', 'DMI-HIRHAM5-HadGEM2-ES-r1i1p1', 'DMI-HIRHAM5-IPSL-CM5A-MR-r1i1p1','DMI-HIRHAM5-MPI-ESM-LR-r1i1p1', 'DMI-HIRHAM5-NorESM1-M-r1i1p1',
-                     'GERICS-REMO2015-CNRM-CM5-r1i1p1', 'GERICS-REMO2015-CanESM2-r1i1p1','GERICS-REMO2015-EC-EARTH-r12i1p1', 'GERICS-REMO2015-HadGEM2-ES-r1i1p1','GERICS-REMO2015-IPSL-CM5A-MR-r1i1p1',
-                     'GERICS-REMO2015-MIROC5-r1i1p1','GERICS-REMO2015-MPI-ESM-LR-r3i1p1', 'GERICS-REMO2015-NorESM1-M-r1i1p1','ICTP-RegCM4-6-CNRM-CM5-r1i1p1', 'ICTP-RegCM4-6-EC-EARTH-r12i1p1',
-                     'ICTP-RegCM4-6-HadGEM2-ES-r1i1p1', 'ICTP-RegCM4-6-MPI-ESM-LR-r1i1p1', 'ICTP-RegCM4-6-NorESM1-M-r1i1p1', 'IPSL-WRF381P-CNRM-CM5-r1i1p1','IPSL-WRF381P-EC-EARTH-r12i1p1',
-                     'IPSL-WRF381P-HadGEM2-ES-r1i1p1','IPSL-WRF381P-IPSL-CM5A-MR-r1i1p1', 'IPSL-WRF381P-MPI-ESM-LR-r1i1p1','IPSL-WRF381P-NorESM1-M-r1i1p1', 'KNMI-RACMO22E-CNRM-CM5-r1i1p1',
-                     'KNMI-RACMO22E-EC-EARTH-r0i0p0', 'KNMI-RACMO22E-HadGEM2-ES-r1i1p1','KNMI-RACMO22E-IPSL-CM5A-MR-r1i1p1', 'KNMI-RACMO22E-MPI-ESM-LR-r1i1p1','KNMI-RACMO22E-NorESM1-M-r1i1p1',
-                     'MOHC-HadREM3-GA7-05-CNRM-CM5-r1i1p1','MOHC-HadREM3-GA7-05-EC-EARTH-r12i1p1','MOHC-HadREM3-GA7-05-HadGEM2-ES-r1i1p1','MOHC-HadREM3-GA7-05-MPI-ESM-LR-r1i1p1','MOHC-HadREM3-GA7-05-NorESM1-M-r1i1p1',
-                     'MPI-CSC-REMO2009-MPI-ESM-LR-r0i0p0', 'SMHI-RCA4-EC-EARTH-r0i0p0','SMHI-RCA4-HadGEM2-ES-r1i1p1', 'SMHI-RCA4-IPSL-CM5A-MR-r1i1p1','SMHI-RCA4-MPI-ESM-LR-r0i0p0', 'SMHI-RCA4-NorESM1-M-r1i1p1',
-                     'UHOH-WRF361H-EC-EARTH-r1i1p1', 'UHOH-WRF361H-HadGEM2-ES-r1i1p1','UHOH-WRF361H-MIROC5-r1i1p1', 'UHOH-WRF361H-MPI-ESM-LR-r1i1p1']
+    if cmip in ['RCM'] and season_region in ['JJA_ALPS','DJF_ALPS','JJA_CH','DJF_CH']:
         period = '2070/2099 - 1981/2010'
 
     # plot quadrant boundries (medians)

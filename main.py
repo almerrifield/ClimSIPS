@@ -40,6 +40,7 @@ def main():
     cmip = config['cmip']
     im_or_em = config.get('im_or_em','IM')
     season_region = config['season_region']
+    double_norm = config.getboolean('double_norm',fallback=False)
 
     # convert subselection inputs in the config to integers
     m = int(config['m'])
@@ -52,7 +53,7 @@ def main():
 #####################################################
 
     #  pre-processing: obtain performance, independence, and spread metrics
-    dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path)
+    dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path,double_norm=double_norm)
     ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em, season_region)
     dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region,spread_path)
 

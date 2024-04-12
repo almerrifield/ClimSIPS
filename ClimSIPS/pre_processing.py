@@ -8,17 +8,25 @@ from . import function as csf
 # ################################
 
 
-def pre_process_perf(path, cmip, im_or_em, season_region, spread_path):
-    if cmip in ['CMIP5','CMIP6']:
-        deltas_5 = pre_process_perf_load_delta(path, 'CMIP5', season_region)
-        deltas_6 = pre_process_perf_load_delta(path, 'CMIP6', season_region)
-    if cmip in ['CH202x','CH202x_CMIP6']:
-        deltas_5 = pre_process_perf_load_delta(path, 'CH202x', season_region)
-        deltas_6 = pre_process_perf_load_delta(path, 'CH202x_CMIP6', season_region)
-    if cmip == 'RCM':
-        deltas_5 = pre_process_perf_load_delta(path, 'RCM', season_region)
-        deltas_6 = pre_process_perf_load_delta(path, 'RCM_CMIP6', season_region)
-    return pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region,spread_path)
+def pre_process_perf(path, cmip, im_or_em, season_region, spread_path, double_norm=False):
+    deltas = pre_process_perf_load_delta(path, cmip, season_region)
+
+    if double_norm:
+        normalization_partner = {
+            'CMIP5': 'CMIP6',
+            'CMIP6': 'CMIP5',
+            'CH202x': 'CH202x_CMIP6',
+            'CH202x_CMIP6': 'CH202x',
+            'RCM': 'RCM_CMIP6',
+            'RCM_CMIP6': 'RCM',
+        }
+        other = normalization_partner[cmip]
+        print('normalized with', other)
+        deltas_other = pre_process_perf_load_delta(path, other, season_region)
+    else:
+        print('with self normalization')
+        deltas_other = deltas
+    return pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region,spread_path)
 
 def pre_process_perf_load_delta(path, cmip, season_region):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM','RCM_CMIP6']:
@@ -1138,7 +1146,7 @@ def pre_process_perf_load_delta(path, cmip, season_region):
         return [dsT_trnd_delta]
 
 
-def pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region, spread_path):
+def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, spread_path):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
@@ -1147,13 +1155,8 @@ def pre_process_perf_rest(deltas_5, deltas_6, cmip, im_or_em, season_region, spr
     # concatenate to create a CMIP5/6 ensemble for nomalizing
     both_deltas = []
 
-    for d5, d6 in zip(deltas_5, deltas_6):
-        both_deltas.append(xr.concat([d5,d6],dim='member'))
-
-    if cmip in ['CMIP5','CH202x','RCM']:
-        deltas = deltas_5
-    elif cmip in ['CMIP6','CH202x_CMIP6']:
-        deltas = deltas_6
+    for d, do in zip(deltas, deltas_other):
+        both_deltas.append(xr.concat([d,do],dim='member'))
 
     # normalize by CMIP5/6 mean
     ds_norm = []

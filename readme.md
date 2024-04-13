@@ -4,27 +4,29 @@
 ClimSIPS is a selection protocol designed to select subsets of CMIP5 or CMIP6 models for downstream applications. Results are presented in a ternary contour plot to illustrate how ascribing different levels of priority to performance, independence, and spread affects subset composition.
 
 ### Installation
-The current paper release of ClimSIPS runs in the environment specified in ClimSIPS.yml. To access the enviroment, please use the following command:
 
-`conda env create -f ClimSIPS.yml`
+We recommend running ClimSIPS in the development environment:  
 
-`source activate ClimSIPS`
-
-* Note: This environment is pinned for the paper.
-
-We have also provided two alternative development environments.
-
-requirements.txt can be pip installed as:
-
-`pip install -r requirements.txt`
-
-or ClimSIPS_dev can be accessed with:
+ClimSIPS_dev can be accessed with:
 
 `conda env create -f ClimSIPS_dev.yml`
 
 `source activate ClimSIPS_dev`
 
+Alternatively, requirements.txt can be pip installed as:
+
+`pip install -r requirements.txt`
+
+
+
+The paper release of ClimSIPS runs in the environment specified in ClimSIPS.yml. The enviroment may be difficult to resolve for users external to ETH Zurich.
+
+
 ### Data
+ClimSIPS can be run with or without the preprocessor.
+
+To run ClimSIPS without the preprocesso
+
 The package imports performance, independence, and spread predictors. For the European case studies example, predictors are available here:
 https://www.research-collection.ethz.ch/handle/20.500.11850/599312.
 * predictors for new cases (e.g., DJF_CEU, JJA_CH, and DJF_CH) will be made available upon request.

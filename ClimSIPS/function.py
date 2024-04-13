@@ -44,8 +44,10 @@ def select_default_common_models(ds,CMIP):
 def load_models(path,filename,CMIP,default_models=True):
     res = xr.open_dataset(path+filename,use_cftime = True)
     res = res.sortby(res.member)
-    if default_models:
+    if default_models is True:
         res = select_default_common_models(res,CMIP)
+    elif isinstance(default_models, list):
+        res = res.sel(member=default_models)
     return res
 
 # load observations

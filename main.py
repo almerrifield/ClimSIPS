@@ -32,7 +32,7 @@ def main():
     config = all_config[config_key]
     skip_preprocessing_with=config.get('skip_preprocessing_with', fallback='')
 
-    # # ensemble and representation
+    # ensemble and representation
     cmip = config['cmip']
     im_or_em = config.get('im_or_em','IM')
     season_region = config['season_region']
@@ -55,9 +55,13 @@ def main():
         indep_path=predictors_root+'independence/'
 
         #  pre-processing: obtain performance, independence, and spread metrics
-        dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path,double_norm=double_norm)
-        ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em, season_region)
-        dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region,spread_path)
+        # TO DO: Implement SSP126 and SSP245
+        scenario='SSP585'
+        common_models = cspp.model_soup(perf_path,indep_path,spread_path, cmip, im_or_em, season_region,scenario)
+
+        dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path,double_norm=double_norm,default_models=common_models)
+        ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em, season_region,default_models=common_models)
+        dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region,spread_path,default_models=common_models)
 
         # save output file
         outfile = 'perf_ind_spread_metrics.nc'

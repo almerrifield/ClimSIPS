@@ -59,7 +59,7 @@ def main():
         scenario='SSP585'
         common_models = cspp.model_soup(perf_path,indep_path,spread_path, cmip, im_or_em, season_region,double_norm,scenario)
         #print(common_models)
-        dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path,double_norm=double_norm,default_models=common_models)
+        dsDeltaQ = cspp.pre_process_perf(perf_path, cmip, im_or_em, season_region,spread_path,default_models=common_models,double_norm=double_norm)
         ds_spread_metric,targets = cspp.pre_process_spread(spread_path, cmip, im_or_em, season_region,default_models=common_models)
         dsWi = cspp.pre_process_indep(indep_path, cmip, im_or_em, season_region,spread_path,default_models=common_models)
 

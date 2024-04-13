@@ -32,7 +32,7 @@ def model_soup(perf_path,indep_path,spread_path, cmip, im_or_em, season_region,d
 # Performance
 # ################################
 
-def pre_process_perf(path, cmip, im_or_em, season_region, spread_path, double_norm=False, default_models=True):
+def pre_process_perf(path, cmip, im_or_em, season_region, spread_path, default_models, double_norm=False):
     deltas = pre_process_perf_load_delta(path, cmip, season_region, default_models=default_models)
 
     if double_norm:
@@ -53,7 +53,7 @@ def pre_process_perf(path, cmip, im_or_em, season_region, spread_path, double_no
     return pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region,spread_path,default_models=default_models)
 
 @functools.lru_cache
-def pre_process_perf_load_delta(path, cmip, season_region,default_models=True):
+def pre_process_perf_load_delta(path, cmip, season_region,default_models):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM','RCM_CMIP6']:
         raise NotImplementedError(cmip)
 
@@ -1170,7 +1170,7 @@ def pre_process_perf_load_delta(path, cmip, season_region,default_models=True):
 
         return [dsT_trnd_delta]
 
-def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, spread_path,default_models=True):
+def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, spread_path,default_models):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
@@ -1201,7 +1201,7 @@ def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, s
 # Spread
 # ################################
 # TO DO: add scenarios
-def pre_process_spread_load(path, cmip, season_region, default_models=True):
+def pre_process_spread_load(path, cmip, season_region, default_models):
     # CMIP5 and CMIP6 temperature and precipitation change
     ## CMIP5 JJA
     if cmip == 'CMIP5' and season_region == 'JJA_CEU' :
@@ -1309,7 +1309,7 @@ def pre_process_spread_load(path, cmip, season_region, default_models=True):
     dsPr_target_ts = csf.load_models(path,changePr_fn,cmip,default_models=default_models)
     return dsT_target_ts, dsPr_target_ts
 
-def pre_process_spread(path, cmip, im_or_em, season_region,default_models=True):
+def pre_process_spread(path, cmip, im_or_em, season_region,default_models):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
 
@@ -1334,7 +1334,7 @@ def pre_process_spread(path, cmip, im_or_em, season_region,default_models=True):
 # ################################
 # Independence
 # ################################
-def pre_process_indep_load(path, cmip,default_models=True):
+def pre_process_indep_load(path, cmip,default_models):
     # CMIP5 and CMIP6 temperature and precipitation change
     if cmip in ['CMIP5','CH202x']:
         ind_tas_fn = 'tas_mon_CMIP5_hist_g025_indmask_ann_1905-2005_mean.nc'
@@ -1351,7 +1351,7 @@ def pre_process_indep_load(path, cmip,default_models=True):
     dsP_clim_mask = csf.load_models(path,ind_psl_fn,cmip,default_models=default_models)
     return dsT_clim_mask, dsP_clim_mask
 
-def pre_process_indep(path, cmip, im_or_em,season_region,spread_path, default_models=True):
+def pre_process_indep(path, cmip, im_or_em,season_region,spread_path, default_models):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
 

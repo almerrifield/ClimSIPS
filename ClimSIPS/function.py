@@ -23,32 +23,20 @@ from . import member_selection as csms
 # functions for output file creations
 ##################################################################
 
-# select default common models
-# for user defined sets, see member_selection.py
-def select_default_common_models(ds,CMIP):
-    if CMIP == 'CMIP6':
-        members = csms.CMIP6_common_members
-    if CMIP == 'CMIP5':
-        members = csms.CMIP5_common_members
-    if CMIP == 'CH202x':
-        members = csms.CMIP5_RCM_common_members
-    if CMIP == 'CH202x_CMIP6':
-        members = csms.CMIP6_RCM_common_members
-    if CMIP == 'RCM':
-        members = csms.RCM_common_members
-    if CMIP == 'RCM_CMIP6':
-        members = csms.RCM_common_members
-    return ds.sel(member=members)
 
 # load performance predictors
 def load_models(path,filename,CMIP,default_models=True):
     res = xr.open_dataset(path+filename,use_cftime = True)
     res = res.sortby(res.member)
     if default_models is True:
-        res = select_default_common_models(res,CMIP)
-    elif isinstance(default_models, list):
-        res = res.sel(member=default_models)
-    return res
+        raise RuntimeError('Deprecated')
+    if default_models is False:
+        return res
+    try:
+        return res.sel(member=list(default_models))
+    except:
+        print(res)
+        raise
 
 # load observations
 def load_observations(path,filename):
@@ -114,7 +102,7 @@ def average_and_maybe_rename(dss, members, new_member_name):
     return averaged
 
 
-def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,key=None):
+def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,key=None,default_models=True):
     if key:
         dss = ds[key]
     else:
@@ -142,34 +130,35 @@ def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,
         ds_all = xr.concat(results, dim='member')
         return ds_all
     ## CMIP6 by spread
+    default_models=list(default_models)
     if choice == 'IM':
         if CMIP == 'CMIP6':
-            mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
+            mem_out = csms.CMIP6_spread_maximizing_members(default_models,season_region,spread_path)
             ds_all = dss.sel(member=mem_out)
             return ds_all.sortby(ds_all.member)
     ## CMIP5 by spread
         elif CMIP == 'CMIP5':
-            mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region,spread_path)
+            mem_out = csms.CMIP5_spread_maximizing_members(default_models,season_region,spread_path)
             ds_all = dss.sel(member=mem_out)
             return ds_all.sortby(ds_all.member)
     ## CMIP6 RCM by spread (for normalization; max warming patch)
         elif CMIP == 'CH202x_CMIP6':
-            mem_out = csms.CMIP6_max_warming_members(csms.CMIP6_common_members,season_region,spread_path) ### patch here
+            mem_out = csms.CMIP6_max_warming_members(default_models,season_region,spread_path) ### patch here
             ds_all = dss.sel(member=mem_out)
             return ds_all.sortby(ds_all.member)
     ## CMIP5 RCM by spread (max warming patch)
         elif CMIP == 'CH202x':
-            mem_out = csms.CMIP5_max_warming_members(csms.CMIP5_common_members,season_region,spread_path) ### patch here
+            mem_out = csms.CMIP5_max_warming_members(default_models,season_region,spread_path) ### patch here
             ds_all = dss.sel(member=mem_out)
             return ds_all.sortby(ds_all.member)
     ## RCM by spread (for normalization, current patch)
         elif CMIP == 'RCM_CMIP6':
-            mem_out = csms.RCM_max_warming_members(csms.RCM_common_members,season_region,spread_path)
+            mem_out = csms.RCM_max_warming_members(default_models,season_region,spread_path)
             ds_all = dss.sel(member=mem_out)
             return ds_all.sortby(ds_all.member)
     ## RCM by spread (max warming patch)
         elif CMIP == 'RCM':
-            mem_out = csms.RCM_max_warming_members(csms.RCM_common_members,season_region,spread_path)
+            mem_out = csms.RCM_max_warming_members(default_models,season_region,spread_path)
             ds_all = dss.sel(member=mem_out)
             return ds_all.sortby(ds_all.member)
 

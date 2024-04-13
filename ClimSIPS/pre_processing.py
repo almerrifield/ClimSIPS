@@ -1,13 +1,14 @@
 import xarray as xr
 import numpy as np
+import functools
 from functools import reduce
 from . import function as csf
 
 # ################################
-# Performance
+# Selecting Common Model Set
 # ################################
 
-def model_soup(perf_path,indep_path,spread_path, cmip, im_or_em, season_region,scenario):
+def model_soup(perf_path,indep_path,spread_path, cmip, im_or_em, season_region,double_norm,scenario):
     perf = pre_process_perf_load_delta(perf_path, cmip, season_region,default_models=False)
     spread = pre_process_spread_load(spread_path, cmip, season_region, default_models=False)
     indep = pre_process_indep_load(indep_path, cmip, default_models=False)
@@ -20,13 +21,19 @@ def model_soup(perf_path,indep_path,spread_path, cmip, im_or_em, season_region,s
     for x in indep:
         models.append(list(x.member.data))
 
+    # common = set(models[0])
+    # for m in models[1:]:
+    #     common = common.intersection(m)
     common = reduce(np.intersect1d,models)
     print('Initial Ensemble Size:', len(common))
-    return common
+    return tuple(common)
 
+# ################################
+# Performance
+# ################################
 
 def pre_process_perf(path, cmip, im_or_em, season_region, spread_path, double_norm=False, default_models=True):
-    deltas = pre_process_perf_load_delta(path, cmip, season_region)
+    deltas = pre_process_perf_load_delta(path, cmip, season_region, default_models=default_models)
 
     if double_norm:
         normalization_partner = {
@@ -39,12 +46,13 @@ def pre_process_perf(path, cmip, im_or_em, season_region, spread_path, double_no
         }
         other = normalization_partner[cmip]
         print('normalized with', other)
-        deltas_other = pre_process_perf_load_delta(path, other, season_region, default_models=default_models)
+        deltas_other = pre_process_perf_load_delta(path, other, season_region, default_models=False)
     else:
         print('with self normalization')
         deltas_other = deltas
-    return pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region,spread_path)
+    return pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region,spread_path,default_models=default_models)
 
+@functools.lru_cache
 def pre_process_perf_load_delta(path, cmip, season_region,default_models=True):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM','RCM_CMIP6']:
         raise NotImplementedError(cmip)
@@ -1162,8 +1170,7 @@ def pre_process_perf_load_delta(path, cmip, season_region,default_models=True):
 
         return [dsT_trnd_delta]
 
-
-def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, spread_path):
+def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, spread_path,default_models=True):
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
@@ -1186,9 +1193,9 @@ def pre_process_perf_rest(deltas, deltas_other, cmip, im_or_em, season_region, s
 
     # aggregate ensemble means or select spread members
     if im_or_em == 'IM':
-        return csf.ensemble_mean_or_individual_member(dsDeltaQ,choice='IM',CMIP=cmip,season_region=season_region,spread_path=spread_path)
+        return csf.ensemble_mean_or_individual_member(dsDeltaQ,choice='IM',CMIP=cmip,season_region=season_region,spread_path=spread_path,default_models=default_models)
     elif im_or_em == 'EM':
-        return csf.ensemble_mean_or_individual_member(dsDeltaQ,choice='EM',CMIP=cmip,season_region=season_region,spread_path=spread_path)
+        return csf.ensemble_mean_or_individual_member(dsDeltaQ,choice='EM',CMIP=cmip,season_region=season_region,spread_path=spread_path,default_models=default_models)
 
 # ################################
 # Spread
@@ -1309,8 +1316,8 @@ def pre_process_spread(path, cmip, im_or_em, season_region,default_models=True):
     dsT_target_ts, dsPr_target_ts = pre_process_spread_load(path, cmip, season_region, default_models=default_models)
 
     # aggregate ensemble means or select spread members
-    dsT_target_ts_sel = csf.ensemble_mean_or_individual_member(dsT_target_ts,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=path,key='tas')
-    dsPr_target_ts_sel = csf.ensemble_mean_or_individual_member(dsPr_target_ts,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=path,key='pr')
+    dsT_target_ts_sel = csf.ensemble_mean_or_individual_member(dsT_target_ts,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=path,key='tas', default_models=default_models)
+    dsPr_target_ts_sel = csf.ensemble_mean_or_individual_member(dsPr_target_ts,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=path,key='pr', default_models=default_models)
     targets = [dsT_target_ts_sel,dsPr_target_ts_sel]
 
 
@@ -1348,12 +1355,12 @@ def pre_process_indep(path, cmip, im_or_em,season_region,spread_path, default_mo
     if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
 
-    dsT_clim_mask, dsP_clim_mask = pre_process_indep_load(path, cmip)
+    dsT_clim_mask, dsP_clim_mask = pre_process_indep_load(path, cmip,default_models=default_models)
 
     if cmip in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6']:
         # aggregate ensemble means or select spread members
-        dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
-        dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='psl')
+        dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas', default_models=default_models)
+        dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='psl', default_models=default_models)
         inds = [dsT_clim_mask_sel,dsP_clim_mask_sel]
 
         # get and normailize inter-model RMSEs
@@ -1366,14 +1373,9 @@ def pre_process_indep(path, cmip, im_or_em,season_region,spread_path, default_mo
         dsWi = (ds_clim_mask_err[0]+ds_clim_mask_err[1])/len(ds_clim_mask_err)
 
     if cmip == 'RCM':
-
-        # dsT_rcm_mask = csf.load_models(path,ind_rcm_fn,cmip,default_models=default_models)
-
         # aggregate ensemble means or select spread members
-        dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
-        dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='pr')
-        # dsT_rcm_mask_sel = csf.ensemble_mean_or_individual_member(dsT_rcm_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas')
-        #inds = [dsT_clim_mask_sel,dsP_clim_mask_sel,dsT_rcm_mask_sel]
+        dsT_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsT_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='tas', default_models=default_models)
+        dsP_clim_mask_sel = csf.ensemble_mean_or_individual_member(dsP_clim_mask,choice=im_or_em,CMIP=cmip,season_region=season_region,spread_path=spread_path,key='pr', default_models=default_models)
         inds = [dsT_clim_mask_sel,dsP_clim_mask_sel]
 
         # get and normailize inter-model RMSEs

@@ -28,8 +28,6 @@ from . import member_selection as csms
 def load_models(path,filename,CMIP,default_models=True):
     res = xr.open_dataset(path+filename,use_cftime = True)
     res = res.sortby(res.member)
-    if default_models is True:
-        raise RuntimeError('Deprecated')
     if default_models is False:
         return res
     try:

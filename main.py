@@ -17,17 +17,23 @@ def main():
     ############# INPUTS for pre-processing #############
 
     all_config = configparser.ConfigParser()
+    if len(sys.argv) < 3:
+        print("Use python main.py config_climsips.ini config_section_key [...]")
+        return
 
-    if len(sys.argv) == 4:
-        all_config.read(sys.argv[1])
-        config_key = sys.argv[2]
-        predictors_root = sys.argv[3]
-    if len(sys.argv) == 3:
-        all_config.read(sys.argv[1])
-        config_key = sys.argv[2]
-        predictors_root = "/net/h2o/climphys/meranna/Data/predictors/"
-    else:
-        print("Use python main.py config_climsips.ini config_section_key predictor_root_directory")
+    all_config.read(sys.argv[1])
+    config_key = sys.argv[2]
+    config = all_config[config_key]
+    skip_preprocessing_with=config.get('skip_preprocessing_with', fallback='')
+
+    if skip_preprocessing_with=='':
+        if len(sys.argv) == 4:
+            predictors_root = sys.argv[3]
+        if len(sys.argv) == 3:
+            predictors_root = "/net/h2o/climphys/meranna/Data/predictors/"
+        else:
+            print("Use python main.py config_climsips.ini config_section_key predictor_root_directory")
+            return
 
     config = all_config[config_key]
     skip_preprocessing_with=config.get('skip_preprocessing_with', fallback='')
@@ -69,6 +75,9 @@ def main():
     else:
         outfile = skip_preprocessing_with
         print('skipping preprocessing with', outfile)
+
+    # predictor info
+    cspp.metric_information(cmip, im_or_em, season_region)
 
     # plot components
     csp.performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png")

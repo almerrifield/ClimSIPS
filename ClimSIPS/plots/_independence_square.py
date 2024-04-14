@@ -25,15 +25,16 @@ def independence_square(outfile,cmip,im_or_em,season_region,plotname="independen
     dsWi = xr.open_dataset(outfile,use_cftime = True)
 
     # puts models in paper index order (TO DO: generalize)
-    if cmip == 'CMIP6':
+    if cmip == 'CMIP6' and len(dsWi.delta_i) == 34:
         ind_order = [4,1,17,34,11,12,9,8,13,16,14,33,32,25,26,21,22,35,5,2,27,28,15,3,37,30,29,20,19,31,18,10,7,6]
-        #ind_order = np.arange(1,len(dsWi.delta_i)+1)
-    if cmip == 'CMIP5':
-        ind_order = [1,2,6,7,12,28,26,17,15,16,20,21,3,10,9,8,19,18,14,13,27,5,4,23,22,25]
-    if cmip in ['CH202x','CH202x_CMIP6']:
+    else:
         ind_order = np.arange(1,len(dsWi.delta_i)+1)
-    if cmip == 'RCM':
-        ind_order = np.arange(1,16) #60
+    if cmip == 'CMIP5' and len(dsWi.delta_i) == 26:
+        ind_order = [1,2,6,7,12,28,26,17,15,16,20,21,3,10,9,8,19,18,14,13,27,5,4,23,22,25]
+    else:
+        ind_order = np.arange(1,len(dsWi.delta_i)+1)
+    if cmip in ['CH202x','CH202x_CMIP6','RCM']:
+        ind_order = np.arange(1,len(dsWi.delta_i)+1)
 
     dsWi = dsWi.assign_coords({"fam_order": ("member", ind_order)})
     dsWi = dsWi.assign_coords({"fam_order_2": ("member_model", ind_order)})

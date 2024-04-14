@@ -5,3 +5,4 @@ __pycache__
 ._.DS_Store
 ._*
 .DS_Store
+!precomputed_predictor_outfiles/*.nc

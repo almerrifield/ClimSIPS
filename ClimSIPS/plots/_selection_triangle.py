@@ -1,10 +1,6 @@
 ###########################
 # ternary plot
 ###########################
-# need to enter the ternary environment
-# qce
-# conda activate ternary_plot
-
 import csv
 import math
 import xarray as xr

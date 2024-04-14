@@ -14,32 +14,27 @@ import csv
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 
+from collections import defaultdict
+
+
 from . import member_selection as csms
 
 ##################################################################
 # functions for output file creations
 ##################################################################
 
-# select default common models
-# for user defined sets, see member_selection.py
-def select_default_common_models(ds,CMIP):
-    if CMIP == 'CMIP6':
-        members = csms.CMIP6_common_members
-    if CMIP == 'CMIP5':
-        members = csms.CMIP5_common_members
-    if CMIP == 'CH202x':
-        members = csms.CMIP5_RCM_common_members
-    if CMIP == 'CH202x_CMIP6':
-        members = csms.CMIP6_RCM_common_members
-    return ds.sel(member=members)
 
 # load performance predictors
 def load_models(path,filename,CMIP,default_models=True):
     res = xr.open_dataset(path+filename,use_cftime = True)
     res = res.sortby(res.member)
-    if default_models:
-        res = select_default_common_models(res,CMIP)
-    return res
+    if default_models is False:
+        return res
+    try:
+        return res.sel(member=list(default_models))
+    except:
+        print(res)
+        raise
 
 # load observations
 def load_observations(path,filename):
@@ -54,12 +49,27 @@ def cos_lat_weighted_mean(ds):
   weighted_mean = ds_weighted.mean(('lon', 'lat'))
   return weighted_mean
 
+# cosine-latitude weighted average for RCMs
+def cos_lat_weighted_mean_xy(ds):
+	weights = np.cos(np.deg2rad(ds.lat))
+	weights.name = "weights"
+	ds_weighted = ds.weighted(weights)
+	weighted_mean = ds_weighted.mean(('y', 'x'))
+	return weighted_mean
+
 # compute rmse between model and observations
 def compute_predictor_deltas(ds,ds_obs,key):
-    weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
-    weights = xr.concat(weights, "lon")
-    weights['lon'] = ds.lon
-    return xskillscore.rmse(ds[key],ds_obs[key],dim=['lat','lon'],weights=weights,skipna=True)
+    if np.ndim(ds.lat) == 1:
+        weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
+        weights = xr.concat(weights, "lon")
+        weights['lon'] = ds.lon
+        rmse = xskillscore.rmse(ds[key],ds_obs[key],dim=['lat','lon'],weights=weights,skipna=True)
+    if np.ndim(ds.lat) == 2:
+        coords=dict(x=("x", ds.x), y=("y", ds.y))
+        ds = ds.assign_coords(coords)
+        weights = np.cos(np.deg2rad(ds.lat))
+        rmse = xskillscore.rmse(ds[key],ds_obs[key],dim=['x','y'],weights=weights,skipna=True)
+    return rmse
 
 # normalize performance predictors
 def normalize_predictor_deltas(ds,ds_cat):
@@ -73,206 +83,82 @@ def performance_metric(*ds_list):
 
 # choose ensemble mean or individual member
 # TO DO: generalize ensemble mean for any base set
-def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,key=None):
+
+# get base model name, e.g. ACCESS-CM2
+def get_model_base(name):
+    return name.split('-r')[0]
+
+# average over model base name ensembles
+def average_and_maybe_rename(dss, members, new_member_name):
+    if len(members) > 1:
+        # Average over the 'member' dimension and set new member name
+        averaged = dss.sel(member=members).mean('member')
+        averaged = averaged.assign_coords(member=new_member_name)
+    else:
+        # For single member scenarios, just select the member without averaging
+        averaged = dss.sel(member=members[0])  # No need to average if only one member
+    return averaged
+
+
+def ensemble_mean_or_individual_member(ds,choice,CMIP,season_region,spread_path,key=None,default_models=True):
     if key:
         dss = ds[key]
     else:
         dss = ds
     ## CMIP6 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH',"DJF_CH"]:
-        hadgemmm = dss.sel(member = ['HadGEM3-GC31-MM-r1i1p1f3',
-        'HadGEM3-GC31-MM-r2i1p1f3', 'HadGEM3-GC31-MM-r3i1p1f3',
-        'HadGEM3-GC31-MM-r4i1p1f3']).mean('member')
-        hadgemmm['member'] = 'HadGEM3-GC31-MM-r0i0p0f0'
-        mpihr = dss.sel(member=['MPI-ESM1-2-HR-r1i1p1f1',
-        'MPI-ESM1-2-HR-r2i1p1f1']).mean('member')
-        mpihr['member'] = 'MPI-ESM1-2-HR-r0i0p0f0'
-        mri2 = dss.sel(member=['MRI-ESM2-0-r1i1p1f1', 'MRI-ESM2-0-r1i2p1f1']).mean('member')
-        mri2['member'] = 'MRI-ESM2-0-r0i0p0f0'
-        cesm2_waccm = dss.sel(member=['CESM2-WACCM-r1i1p1f1', 'CESM2-WACCM-r2i1p1f1', 'CESM2-WACCM-r3i1p1f1']).mean('member')
-        cesm2_waccm['member'] = 'CESM2-WACCM-r0i0p0f0'
-        cesm2 = dss.sel(member=['CESM2-r10i1p1f1', 'CESM2-r11i1p1f1', 'CESM2-r1i1p1f1',
-        'CESM2-r2i1p1f1', 'CESM2-r4i1p1f1']).mean('member')
-        cesm2['member'] = 'CESM2-r0i0p0f0'
-        cnrm2 = dss.sel(member=['CNRM-ESM2-1-r1i1p1f2',
-        'CNRM-ESM2-1-r2i1p1f2', 'CNRM-ESM2-1-r3i1p1f2', 'CNRM-ESM2-1-r4i1p1f2',
-        'CNRM-ESM2-1-r5i1p1f2']).mean('member')
-        cnrm2['member'] = 'CNRM-ESM2-1-r0i0p0f0'
-        cnrm6 = dss.sel(member=['CNRM-CM6-1-r1i1p1f2',
-        'CNRM-CM6-1-r2i1p1f2', 'CNRM-CM6-1-r3i1p1f2', 'CNRM-CM6-1-r4i1p1f2',
-        'CNRM-CM6-1-r5i1p1f2', 'CNRM-CM6-1-r6i1p1f2']).mean('member')
-        cnrm6['member'] = 'CNRM-CM6-1-r0i0p0f0'
-        hadgemll = dss.sel(member=['HadGEM3-GC31-LL-r1i1p1f3',
-        'HadGEM3-GC31-LL-r2i1p1f3', 'HadGEM3-GC31-LL-r3i1p1f3',
-        'HadGEM3-GC31-LL-r4i1p1f3']).mean('member')
-        hadgemll['member'] = 'HadGEM3-GC31-LL-r0i0p0f0'
-        access_cm2 = dss.sel(member=['ACCESS-CM2-r1i1p1f1', 'ACCESS-CM2-r2i1p1f1', 'ACCESS-CM2-r3i1p1f1']).mean('member')
-        access_cm2['member'] = 'ACCESS-CM2-r0i0p0f0'
-        ipsl6a = dss.sel(member=['IPSL-CM6A-LR-r14i1p1f1', 'IPSL-CM6A-LR-r1i1p1f1',
-        'IPSL-CM6A-LR-r2i1p1f1', 'IPSL-CM6A-LR-r3i1p1f1',
-        'IPSL-CM6A-LR-r4i1p1f1', 'IPSL-CM6A-LR-r6i1p1f1']).mean('member')
-        ipsl6a['member'] = 'IPSL-CM6A-LR-r0i0p0f0'
-        access_5 = dss.sel(member=['ACCESS-ESM1-5-r10i1p1f1', 'ACCESS-ESM1-5-r1i1p1f1',
-        'ACCESS-ESM1-5-r2i1p1f1', 'ACCESS-ESM1-5-r3i1p1f1',
-        'ACCESS-ESM1-5-r4i1p1f1', 'ACCESS-ESM1-5-r5i1p1f1',
-        'ACCESS-ESM1-5-r6i1p1f1', 'ACCESS-ESM1-5-r7i1p1f1',
-        'ACCESS-ESM1-5-r8i1p1f1', 'ACCESS-ESM1-5-r9i1p1f1']).mean('member')
-        access_5['member'] = 'ACCESS-ESM1-5-r0i0p0f0'
-        uk = dss.sel(member=['UKESM1-0-LL-r1i1p1f2', 'UKESM1-0-LL-r2i1p1f2',
-        'UKESM1-0-LL-r3i1p1f2', 'UKESM1-0-LL-r4i1p1f2', 'UKESM1-0-LL-r8i1p1f2']).mean('member')
-        uk['member'] = 'UKESM1-0-LL-r0i0p0f0'
-        mpi2lr = dss.sel(member=['MPI-ESM1-2-LR-r10i1p1f1',
-        'MPI-ESM1-2-LR-r1i1p1f1', 'MPI-ESM1-2-LR-r2i1p1f1',
-        'MPI-ESM1-2-LR-r3i1p1f1', 'MPI-ESM1-2-LR-r4i1p1f1',
-        'MPI-ESM1-2-LR-r5i1p1f1', 'MPI-ESM1-2-LR-r6i1p1f1',
-        'MPI-ESM1-2-LR-r7i1p1f1', 'MPI-ESM1-2-LR-r8i1p1f1',
-        'MPI-ESM1-2-LR-r9i1p1f1']).mean('member')
-        mpi2lr['member'] = 'MPI-ESM1-2-LR-r0i0p0f0'
-        canesm5 = dss.sel(member=['CanESM5-r10i1p1f1', 'CanESM5-r10i1p2f1',
-        'CanESM5-r11i1p1f1', 'CanESM5-r11i1p2f1', 'CanESM5-r12i1p1f1',
-        'CanESM5-r12i1p2f1', 'CanESM5-r13i1p1f1', 'CanESM5-r13i1p2f1',
-        'CanESM5-r14i1p1f1', 'CanESM5-r14i1p2f1', 'CanESM5-r15i1p1f1',
-        'CanESM5-r15i1p2f1', 'CanESM5-r16i1p1f1', 'CanESM5-r16i1p2f1',
-        'CanESM5-r17i1p1f1', 'CanESM5-r17i1p2f1', 'CanESM5-r18i1p1f1',
-        'CanESM5-r18i1p2f1', 'CanESM5-r19i1p1f1', 'CanESM5-r19i1p2f1',
-        'CanESM5-r1i1p1f1', 'CanESM5-r1i1p2f1', 'CanESM5-r20i1p1f1',
-        'CanESM5-r20i1p2f1', 'CanESM5-r21i1p1f1', 'CanESM5-r21i1p2f1',
-        'CanESM5-r22i1p1f1', 'CanESM5-r22i1p2f1', 'CanESM5-r23i1p1f1',
-        'CanESM5-r23i1p2f1', 'CanESM5-r24i1p1f1', 'CanESM5-r24i1p2f1',
-        'CanESM5-r25i1p1f1', 'CanESM5-r25i1p2f1', 'CanESM5-r2i1p1f1',
-        'CanESM5-r2i1p2f1', 'CanESM5-r3i1p1f1', 'CanESM5-r3i1p2f1',
-        'CanESM5-r4i1p1f1', 'CanESM5-r4i1p2f1', 'CanESM5-r5i1p1f1',
-        'CanESM5-r5i1p2f1', 'CanESM5-r6i1p1f1', 'CanESM5-r6i1p2f1',
-        'CanESM5-r7i1p1f1', 'CanESM5-r7i1p2f1', 'CanESM5-r8i1p1f1',
-        'CanESM5-r8i1p2f1', 'CanESM5-r9i1p1f1', 'CanESM5-r9i1p2f1']).mean('member')
-        canesm5['member'] = 'CanESM5-r0i0p0f0'
-        miroce = dss.sel(member=['MIROC-ES2L-r10i1p1f2',
-        'MIROC-ES2L-r1i1p1f2', 'MIROC-ES2L-r2i1p1f2', 'MIROC-ES2L-r3i1p1f2',
-        'MIROC-ES2L-r4i1p1f2', 'MIROC-ES2L-r5i1p1f2', 'MIROC-ES2L-r6i1p1f2',
-        'MIROC-ES2L-r7i1p1f2', 'MIROC-ES2L-r8i1p1f2', 'MIROC-ES2L-r9i1p1f2']).mean('member')
-        miroce['member'] = 'MIROC-ES2L-r0i0p0f0'
-        miroc6 = dss.sel(member=['MIROC6-r10i1p1f1', 'MIROC6-r11i1p1f1', 'MIROC6-r12i1p1f1',
-        'MIROC6-r13i1p1f1', 'MIROC6-r14i1p1f1', 'MIROC6-r15i1p1f1',
-        'MIROC6-r16i1p1f1', 'MIROC6-r17i1p1f1', 'MIROC6-r18i1p1f1',
-        'MIROC6-r19i1p1f1', 'MIROC6-r1i1p1f1', 'MIROC6-r20i1p1f1',
-        'MIROC6-r21i1p1f1', 'MIROC6-r22i1p1f1', 'MIROC6-r23i1p1f1',
-        'MIROC6-r24i1p1f1', 'MIROC6-r25i1p1f1', 'MIROC6-r26i1p1f1',
-        'MIROC6-r27i1p1f1', 'MIROC6-r28i1p1f1', 'MIROC6-r29i1p1f1',
-        'MIROC6-r2i1p1f1', 'MIROC6-r30i1p1f1', 'MIROC6-r31i1p1f1',
-        'MIROC6-r32i1p1f1', 'MIROC6-r33i1p1f1', 'MIROC6-r34i1p1f1',
-        'MIROC6-r35i1p1f1', 'MIROC6-r36i1p1f1', 'MIROC6-r37i1p1f1',
-        'MIROC6-r38i1p1f1', 'MIROC6-r39i1p1f1', 'MIROC6-r3i1p1f1',
-        'MIROC6-r40i1p1f1', 'MIROC6-r41i1p1f1', 'MIROC6-r42i1p1f1',
-        'MIROC6-r43i1p1f1', 'MIROC6-r44i1p1f1', 'MIROC6-r45i1p1f1',
-        'MIROC6-r46i1p1f1', 'MIROC6-r47i1p1f1', 'MIROC6-r48i1p1f1',
-        'MIROC6-r49i1p1f1', 'MIROC6-r4i1p1f1', 'MIROC6-r50i1p1f1',
-        'MIROC6-r5i1p1f1', 'MIROC6-r6i1p1f1', 'MIROC6-r7i1p1f1',
-        'MIROC6-r8i1p1f1', 'MIROC6-r9i1p1f1']).mean('member')
-        miroc6['member'] = 'MIROC6-r0i0p0f0'
-        nesm3 = dss.sel(member=['NESM3-r1i1p1f1', 'NESM3-r2i1p1f1']).mean('member')
-        nesm3['member'] = 'NESM3-r0i0p0f0'
-        fgoalsg = dss.sel(member=['FGOALS-g3-r1i1p1f1',
-        'FGOALS-g3-r2i1p1f1']).mean('member')
-        fgoalsg['member'] = 'FGOALS-g3-r0i0p0f0'
-        kace = dss.sel(member=['KACE-1-0-G-r2i1p1f1',
-        'KACE-1-0-G-r3i1p1f1']).mean('member')
-        kace['member'] = 'KACE-1-0-G-r0i0p0f0'
-        cas = dss.sel(member=['CAS-ESM2-0-r1i1p1f1', 'CAS-ESM2-0-r3i1p1f1']).mean('member')
-        cas['member'] = 'CAS-ESM2-0-r0i0p0f0'
-        ds_all = xr.concat([access_cm2,access_5,dss.sel(member='AWI-CM-1-1-MR-r1i1p1f1'),cas,
-        cesm2_waccm,cesm2,dss.sel(member='CMCC-CM2-SR5-r1i1p1f1'),dss.sel(member='CMCC-ESM2-r1i1p1f1'),
-        dss.sel(member='CNRM-CM6-1-HR-r1i1p1f2'),cnrm6,cnrm2,canesm5,dss.sel(member='E3SM-1-1-r1i1p1f1'),
-        dss.sel(member='FGOALS-f3-L-r1i1p1f1'),fgoalsg,dss.sel(member='GFDL-CM4-r1i1p1f1'),
-        dss.sel(member='GFDL-ESM4-r1i1p1f1'),dss.sel(member='GISS-E2-1-G-r1i1p3f1'),hadgemll,
-        hadgemmm,dss.sel(member='INM-CM4-8-r1i1p1f1'),dss.sel(member='INM-CM5-0-r1i1p1f1'),
-        ipsl6a,kace,dss.sel(member='KIOST-ESM-r1i1p1f1'),miroce,miroc6,mpihr,mpi2lr,mri2,nesm3,
-        dss.sel(member='NorESM2-MM-r1i1p1f1'),dss.sel(member='TaiESM1-r1i1p1f1'),uk],dim='member')
-        return ds_all
-    ## CMIP5 by ensemble mean
-    if choice == 'EM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        cesm1 = dss.sel(member=['CESM1-CAM5-r1i1p1', 'CESM1-CAM5-r2i1p1', 'CESM1-CAM5-r3i1p1']).mean('member')
-        cesm1['member'] = 'CESM1-CAM5-r0i0p0'
-        miroc5 = dss.sel(member=['MIROC5-r1i1p1', 'MIROC5-r2i1p1', 'MIROC5-r3i1p1']).mean('member')
-        miroc5['member'] = 'MIROC5-r0i0p0'
-        hadgemes = dss.sel(member=['HadGEM2-ES-r1i1p1','HadGEM2-ES-r2i1p1', 'HadGEM2-ES-r3i1p1', 'HadGEM2-ES-r4i1p1']).mean('member')
-        hadgemes['member'] = 'HadGEM2-ES-r0i0p0'
-        ccsm4 = dss.sel(member=['CCSM4-r1i1p1', 'CCSM4-r2i1p1','CCSM4-r3i1p1', 'CCSM4-r4i1p1', 'CCSM4-r5i1p1', 'CCSM4-r6i1p1']).mean('member')
-        ccsm4['member'] = 'CCSM4-r0i0p0'
-        canesm2 = dss.sel(member=['CanESM2-r1i1p1', 'CanESM2-r2i1p1', 'CanESM2-r3i1p1', 'CanESM2-r4i1p1','CanESM2-r5i1p1']).mean('member')
-        canesm2['member'] = 'CanESM2-r0i0p0'
-        mpilr = dss.sel(member=['MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1']).mean('member')
-        mpilr['member'] = 'MPI-ESM-LR-r0i0p0'
-        csiro = dss.sel(member=['CSIRO-Mk3-6-0-r10i1p1',
-        'CSIRO-Mk3-6-0-r1i1p1', 'CSIRO-Mk3-6-0-r2i1p1', 'CSIRO-Mk3-6-0-r3i1p1',
-        'CSIRO-Mk3-6-0-r4i1p1', 'CSIRO-Mk3-6-0-r5i1p1', 'CSIRO-Mk3-6-0-r6i1p1',
-        'CSIRO-Mk3-6-0-r7i1p1', 'CSIRO-Mk3-6-0-r8i1p1', 'CSIRO-Mk3-6-0-r9i1p1']).mean('member')
-        csiro['member'] = 'CSIRO-Mk3-6-0-r0i0p0'
-        gissr = dss.sel(member=['GISS-E2-R-r1i1p1', 'GISS-E2-R-r1i1p2', 'GISS-E2-R-r1i1p3',
-        'GISS-E2-R-r2i1p1', 'GISS-E2-R-r2i1p3']).mean('member')
-        gissr['member'] = 'GISS-E2-R-r0i0p0'
-        gissh = dss.sel(member=['GISS-E2-H-r1i1p1', 'GISS-E2-H-r1i1p2',
-        'GISS-E2-H-r1i1p3', 'GISS-E2-H-r2i1p1', 'GISS-E2-H-r2i1p3']).mean('member')
-        gissh['member'] = 'GISS-E2-H-r0i0p0'
-        cnrm5 = dss.sel(member=['CNRM-CM5-r10i1p1', 'CNRM-CM5-r1i1p1', 'CNRM-CM5-r2i1p1',
-        'CNRM-CM5-r4i1p1', 'CNRM-CM5-r6i1p1']).mean('member')
-        cnrm5['member'] = 'CNRM-CM5-r0i0p0'
-        ipsl5a = dss.sel(member=['IPSL-CM5A-LR-r1i1p1', 'IPSL-CM5A-LR-r2i1p1', 'IPSL-CM5A-LR-r3i1p1',
-        'IPSL-CM5A-LR-r4i1p1']).mean('member')
-        ipsl5a['member'] = 'IPSL-CM5A-LR-r0i0p0'
-        ds_all = xr.concat([dss.sel(member='ACCESS1-0-r1i1p1'),
-        dss.sel(member='ACCESS1-3-r1i1p1'),ccsm4,cesm1,cnrm5,csiro,canesm2,
-        dss.sel(member='GFDL-CM3-r1i1p1'),dss.sel(member='GFDL-ESM2G-r1i1p1'),
-        dss.sel(member='GFDL-ESM2M-r1i1p1'),gissh,gissr,hadgemes,ipsl5a,
-        dss.sel(member='IPSL-CM5A-MR-r1i1p1'),dss.sel(member='IPSL-CM5B-LR-r1i1p1'),
-        dss.sel(member='MIROC-ESM-r1i1p1'),miroc5,mpilr,dss.sel(member='MPI-ESM-MR-r1i1p1'),
-        dss.sel(member='MRI-CGCM3-r1i1p1'),dss.sel(member='NorESM1-M-r1i1p1'),
-        dss.sel(member='NorESM1-ME-r1i1p1'),dss.sel(member='bcc-csm1-1-m-r1i1p1'),
-        dss.sel(member='bcc-csm1-1-r1i1p1'),dss.sel(member='inmcm4-r1i1p1')],dim='member')
-        return ds_all
-    ## CMIP5 RCM by ensemble means
-    if choice == 'EM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mpilr = dss.sel(member=['MPI-ESM-LR-r1i1p1','MPI-ESM-LR-r2i1p1','MPI-ESM-LR-r3i1p1']).mean('member')
-        mpilr['member'] = 'MPI-ESM-LR-r0i0p0'
-        ecearth = dss.sel(member=['EC-EARTH-r12i1p1','EC-EARTH-r1i1p1']).mean('member')
-        ecearth['member'] = 'EC-EARTH-r0i0p0'
-        ds_all = xr.concat([dss.sel(member='CNRM-CM5-r1i1p1'),
-        dss.sel(member='CanESM2-r1i1p1'),ecearth,dss.sel(member='HadGEM2-ES-r1i1p1'),
-        dss.sel(member='IPSL-CM5A-MR-r1i1p1'),
-        dss.sel(member='MIROC5-r1i1p1'),mpilr,dss.sel(member='NorESM1-M-r1i1p1')],dim='member')
-        return ds_all
-    ## CMIP6 RCM by ensemble means (for normalization)
-    if choice == 'EM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        ds_all = xr.concat([dss.sel(member='CESM2-r11i1p1f1'),dss.sel(member='CMCC-CM2-SR5-r1i1p1f1'),
-        dss.sel(member='CNRM-ESM2-1-r1i1p1f2'),dss.sel(member='EC-Earth3-Veg-r1i1p1f1'),
-        dss.sel(member='IPSL-CM6A-LR-r1i1p1f1'),dss.sel(member='MIROC6-r1i1p1f1'),
-        dss.sel(member='MPI-ESM1-2-HR-r1i1p1f1'),dss.sel(member='NorESM2-MM-r1i1p1f1'),
-        dss.sel(member='UKESM1-0-LL-r1i1p1f2')],dim='member')
+    if choice == 'EM':
+        model_identifiers = dss.member.data
+        # Grouping models by their base name
+        models_grouped = defaultdict(list)
+        for model in model_identifiers:
+            base_name = get_model_base(model)
+            models_grouped[base_name].append(model)
+        results = []
+        if CMIP == 'CMIP6':
+            for model_name, members in models_grouped.items():
+                new_member_name = f"{model_name}-r0i0p0f0" if len(members) > 1 else members[0]
+                averaged_model = average_and_maybe_rename(dss, members, new_member_name)
+                results.append(averaged_model)
+        elif CMIP in ['CMIP5','CH202x','RCM']:
+            for model_name, members in models_grouped.items():
+                new_member_name = f"{model_name}-r0i0p0" if len(members) > 1 else members[0]
+                averaged_model = average_and_maybe_rename(dss, members, new_member_name)
+                results.append(averaged_model)
+        # Concatenate all results along a new 'member' dimension
+        ds_all = xr.concat(results, dim='member')
         return ds_all
     ## CMIP6 by spread
-    if choice == 'IM' and CMIP == 'CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mem_out = csms.CMIP6_spread_maximizing_members(csms.CMIP6_common_members,season_region,spread_path)
-        dss = dss.sel(member=mem_out)
-        return dss.sortby(dss.member)
+    default_models=list(default_models)
+    if choice == 'IM':
+        if CMIP == 'CMIP6':
+            mem_out = csms.CMIP6_spread_maximizing_members(default_models,season_region,spread_path)
+            ds_all = dss.sel(member=mem_out)
+            return ds_all.sortby(ds_all.member)
     ## CMIP5 by spread
-    if choice == 'IM' and CMIP == 'CMIP5' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mem_out = csms.CMIP5_spread_maximizing_members(csms.CMIP5_common_members,season_region,spread_path)
-        dss = dss.sel(member=mem_out)
-        return dss.sortby(dss.member)
-    ## CMIP6 RCM by spread (for normalization)
-    if choice == 'IM' and CMIP == 'CH202x_CMIP6' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mem_out = csms.CMIP6_RCM_common_members
-        dss = dss.sel(member=mem_out)
-        return dss.sortby(dss.member)
-    ## CMIP5 RCM by spread
-    if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-        mem_out = csms.CMIP5_RCM_spread_maximizing_members(csms.CMIP5_RCM_common_members,season_region,spread_path)
-        dss = dss.sel(member=mem_out)
-        return dss.sortby(dss.member)
-    # ## CMIP5 RCM by spread (all)
-    # if choice == 'IM' and CMIP == 'CH202x' and season_region in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
-    #     mem_out = csms.CMIP5_RCM_common_members
-    #     dss = dss.sel(member=mem_out)
-    #     return dss.sortby(dss.member)
+        elif CMIP == 'CMIP5':
+            mem_out = csms.CMIP5_spread_maximizing_members(default_models,season_region,spread_path)
+            ds_all = dss.sel(member=mem_out)
+            return ds_all.sortby(ds_all.member)
+    ## CMIP6 RCM by spread (for normalization; max warming patch)
+        elif CMIP == 'CH202x_CMIP6':
+            mem_out = csms.CMIP6_max_warming_members(default_models,season_region,spread_path) ### patch here
+            ds_all = dss.sel(member=mem_out)
+            return ds_all.sortby(ds_all.member)
+    ## CMIP5 RCM by spread (max warming patch)
+        elif CMIP == 'CH202x':
+            mem_out = csms.CMIP5_max_warming_members(default_models,season_region,spread_path) ### patch here
+            ds_all = dss.sel(member=mem_out)
+            return ds_all.sortby(ds_all.member)
+    ## RCM by spread (for normalization, current patch)
+        elif CMIP == 'RCM_CMIP6':
+            mem_out = csms.RCM_max_warming_members(default_models,season_region,spread_path)
+            ds_all = dss.sel(member=mem_out)
+            return ds_all.sortby(ds_all.member)
+    ## RCM by spread (max warming patch)
+        elif CMIP == 'RCM':
+            mem_out = csms.RCM_max_warming_members(default_models,season_region,spread_path)
+            ds_all = dss.sel(member=mem_out)
+            return ds_all.sortby(ds_all.member)
 
 # normalize for spread
 def normalize_spread_component(ds):
@@ -293,17 +179,25 @@ def get_squared_diff(ds):
 
 # compute independence matrix
 def get_error(ds):
-    weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
-    weights = xr.concat(weights, "lon")
-    weights['lon'] = ds.lon
+    if np.ndim(ds.lat) == 1:
+        weights = [np.cos(np.deg2rad(ds.lat))]*len(ds.lon)
+        weights = xr.concat(weights, "lon")
+        weights['lon'] = ds.lon
+    if np.ndim(ds.lat) == 2:
+        coords=dict(x=("x", ds.x), y=("y", ds.y))
+        ds = ds.assign_coords(coords)
+        weights = np.cos(np.deg2rad(ds.lat))
     mod_coords = ds.member.values
     nmod = len(mod_coords)
     res = xr.DataArray(np.empty(shape=(nmod, nmod)),
                         dims=("member", "member_model"), coords=dict(member=mod_coords, member_model=mod_coords))
 
-    for mod1 in ds.transpose("member", ...):
-        for mod2 in ds.transpose("member", ...):
-            a = xskillscore.rmse(mod1,mod2,dim=['lat','lon'],weights=weights,skipna=True)
+    for mod1 in ds.transpose("member", ..., transpose_coords=False):
+        for mod2 in ds.transpose("member", ..., transpose_coords=False):
+            if np.ndim(ds.lat) == 1:
+                a = xskillscore.rmse(mod1,mod2,dim=['lat','lon'],weights=weights,skipna=True)
+            if np.ndim(ds.lat) == 2:
+                a = xskillscore.rmse(mod1,mod2,dim=['x','y'],weights=weights,skipna=True)
             res.loc[dict(member=mod1.member, member_model=mod2.member)] = a
 
     return res.where(res!=0)
@@ -498,6 +392,9 @@ def single_run_with_save(filename, m, alpha, beta, perf_cutoff, data, silent=Fal
 # ################################
 # Make output files
 # ################################
+
+## TO DO: pass performance CSV file
+## - set new CMIP6 common members
 
 def make_output_file(dsDeltaQ,ds_spread_metric,targets,dsWi,outfile='perf_ind_spread_metrics.nc'):
     print('Models Used: ',dsWi.member.data)

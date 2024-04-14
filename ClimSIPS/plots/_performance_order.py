@@ -9,12 +9,13 @@ import matplotlib.pyplot as plt
 __all__ = ["performance_order"]
 
 def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_order.png"):
-    if cmip not in ['CMIP5','CMIP6','CH202x']:
+    if cmip not in ['CMIP5','CMIP6','CH202x','CH202x_CMIP6','RCM']:
         raise NotImplementedError(cmip)
     if im_or_em not in ['IM','EM']:
         raise NotImplementedError(im_or_em)
-    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH']:
+    if season_region not in ['JJA_CEU','DJF_NEU','DJF_CEU','JJA_CH','DJF_CH','JJA_ALPS','DJF_ALPS']:
         raise NotImplementedError(season_region)
+
 
     ################################################
     fig = plt.figure(figsize=(8,4))
@@ -30,7 +31,7 @@ def performance_order(outfile,cmip,im_or_em,season_region,plotname="performance_
         tickwid = [-0.5+ii,0.5+ii]
         plt.plot(tickwid,[dsWi_sort.delta_q.isel(member=int(ii/2)),dsWi_sort.delta_q.isel(member=int(ii/2))],linewidth=2,color='k')
         plt.xlim([-1,ind[-1]+1])
-        plt.ylim([0.5,2])
+        plt.ylim([0,3])
         xticks = ind
         ax.set_xticks(xticks)
         labels = dsWi_sort.member.data

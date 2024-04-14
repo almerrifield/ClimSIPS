@@ -32,38 +32,39 @@ https://www.research-collection.ethz.ch/handle/20.500.11850/599312.
 To run ClimSIPS, please set the following inputs in config_climsips.ini:
 
 ``` python
-  #### pre-processing inputs ####
+[default]
+#### pre-processing inputs ####
 
-  skip_preprocessing_with=precomputed_predictor_outfiles/perf_ind_spread_metrics_CMIP6_EM_JJA_CEU.nc
+skip_preprocessing_with=precomputed_predictor_outfiles/perf_ind_spread_metrics_CMIP6_EM_JJA_CEU.nc
 
-  # ensemble options: CMIP5, CMIP6
-  cmip = CMIP6
+# ensemble options: CMIP5, CMIP6
+cmip = CMIP6
 
-  # member options: EM, IM
-  im_or_em = EM
+# member options: EM, IM
+im_or_em = EM
 
-  # region/season options: JJA_CEU, DJF_NEU
-  season_region = JJA_CEU
+# region/season options: JJA_CEU, DJF_NEU
+season_region = JJA_CEU
 
-  # normalize performance with other CMIP ensemble
-  double_norm = no
+# normalize performance with other CMIP ensemble
+double_norm =yes
 
-  #### subselection inputs ####
-  # number of models in the subset
-  m = 2
+#### subselection inputs ####
+# number of models in the subset
+m = 2
 
-  # number of steps in alpha's [0,1] range
-  alpha_steps = 5
-  beta_steps = 5
+# number of steps in alpha's [0,1] range
+alpha_steps = 5
+beta_steps = 5
 
-  # performance threshold to pre-filter models (if desired)
-  perf_cutoff = 10
+# performance threshold to pre-filter models (if desired)
+perf_cutoff = 10
 
-  # setting for parallel processing
-  max_workers = 1
+# setting for parallel processing
+max_workers = 1
 
-  # find the secondary minimum of the cost function
-  min2 = False
+# find the secondary minimum of the cost function
+min2 = False
 ```
 
 To run the package without the preprocessor:
@@ -75,6 +76,7 @@ python main.py config_climsips.ini default
 To run the package with the preprocessor:
 ```python
   #### pre-processing inputs ####
+  
   skip_preprocessing_with=
   ...
 ```
